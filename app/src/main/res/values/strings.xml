@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">UILearning</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="action_settings">Settings</string>
+  <string name="app_name">UILearning</string>
+  <string name="hello_world">Hello world!</string>
+  <string name="action_settings">Settings</string>
+
+
+
+
+  <string name="delay_header">Start Delay</string>
+  <string name="default_interval">30</string>
+
+  <string name="interval_header">Interval</string>
+  <string name="default_delay">5</string>
+
+  <string name="repeat_header">Repeat</string>
+  <string name="default_repeat">Inf</string>
+
+  <string name="edit_button">EDIT</string>
 
 </resources>

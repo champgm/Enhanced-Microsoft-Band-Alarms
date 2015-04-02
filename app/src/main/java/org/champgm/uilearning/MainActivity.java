@@ -5,17 +5,21 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 public class MainActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_main);
-final String[] values ={ "one","two","three"};
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.simple)
-
-
+        setContentView(R.layout.activity_main);
+        final String[] values = {"one", "two", "three"};
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, values);
+        final ListView viewById = (ListView) findViewById(R.id.listView1);
+        if (viewById == null) {
+            throw new RuntimeException("null");
+        }
+        viewById.setAdapter(arrayAdapter);
     }
 
     @Override
