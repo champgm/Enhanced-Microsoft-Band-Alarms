@@ -1,4 +1,4 @@
-package org.champgm.uilearning;
+package org.champgm.enhancedalarm;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

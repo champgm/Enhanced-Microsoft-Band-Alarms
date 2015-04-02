@@ -1,22 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-  <string name="app_name">UILearning</string>
-  <string name="hello_world">Hello world!</string>
-  <string name="action_settings">Settings</string>
+    <string name="app_name">UILearning</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 
+    <!-- Timer List Item Strings -->
+    <string name="delay_header">Start Delay</string>
+    <string name="default_interval">30s</string>
+    <string name="interval_header">Interval</string>
+    <string name="default_delay">5s</string>
+    <string name="repeat_header">Repeat</string>
+    <string name="default_repeat">Inf</string>
+    <string name="edit_button">EDIT</string>
 
-
-
-  <string name="delay_header">Start Delay</string>
-  <string name="default_interval">30</string>
-
-  <string name="interval_header">Interval</string>
-  <string name="default_delay">5</string>
-
-  <string name="repeat_header">Repeat</string>
-  <string name="default_repeat">Inf</string>
-
-  <string name="edit_button">EDIT</string>
+    <!-- Edit Timer Strings -->
+    <string name="title_activity_edit_timer">EditTimerActivity</string>
+    <string name="interval_text">Interval:</string>
+    <string name="delay_text">Delay: </string>
+    <string name="repeat_text">Repeat: </string>
+    <string name="done_button">DONE</string>
 
 </resources>
