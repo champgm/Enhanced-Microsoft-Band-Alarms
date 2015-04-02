@@ -1,18 +1,18 @@
 package org.champgm.enhancedalarm;
 
-import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import org.champgm.enhancedalarm.timer.EditTimerActivity;
 import org.champgm.enhancedalarm.timer.TimerAdapter;
 import org.champgm.enhancedalarm.timer.TimerListItem;
 import org.champgm.enhancedalarm.timer.TimerListItemOnClickListener;
-
-import java.util.ArrayList;
 
 public class MainActivity extends ActionBarActivity {
     private TimerAdapter timerAdapter;
@@ -23,16 +23,12 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         if (timerAdapter == null) {
-            final ArrayList<TimerListItem> initalArray = new ArrayList<TimerListItem>();
-            initalArray.add(new TimerListItem("30s", "5s", "Inf"));
-            timerAdapter = new TimerAdapter(initalArray, (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE));
+            timerAdapter = new TimerAdapter(this);
         }
 
         final ListView timerList = (ListView) findViewById(R.id.timerList);
         timerList.setAdapter(timerAdapter);
         timerList.setOnItemClickListener(new TimerListItemOnClickListener(timerAdapter, this));
-
-
     }
 
     @Override
@@ -55,6 +51,32 @@ public class MainActivity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        Log.i("Main", "Something triggered onResult");
+        if (EditTimerActivity.EDIT_RESULT_SUCCESS == resultCode) {
+
+            final boolean addItem = data.getBooleanExtra(TimerAdapter.PUT_EXTRA_ADD_ITEM, true);
+            final TimerListItem resultTimer = data.getParcelableExtra(TimerAdapter.PUT_EXTRA_ITEM_KEY);
+            final int resultPosition = data.getIntExtra(TimerAdapter.PUT_EXTRA_POSITION_KEY, 999);
+
+            if (resultPosition == 999) {
+                Toast.makeText(this, "Unknown position", Toast.LENGTH_LONG).show();
+            } else {
+//                if (addItem) {
+//                    timerAdapter.putItem(resultTimer);
+//                } else {
+                timerAdapter.replaceItem(resultPosition, resultTimer);
+//                }
+            }
+        } else {
+            Log.i("Main", "Something else triggered onResult");
+            Log.i("Main", "requestCode: " + requestCode);
+            Log.i("Main", "resultCode: " + resultCode);
+            Log.i("Main", "data: " + data);
+        }
     }
 
 //    private ArrayList<TimerListItem> getDataForListView() {

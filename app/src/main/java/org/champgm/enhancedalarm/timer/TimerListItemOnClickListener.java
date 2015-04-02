@@ -1,9 +1,9 @@
 package org.champgm.enhancedalarm.timer;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Toast;
 
 import org.champgm.enhancedalarm.R;
 
@@ -22,7 +22,7 @@ public class TimerListItemOnClickListener implements AdapterView.OnItemClickList
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
 
-        final TimerListItem timerListItem = timerAdapter.getTimerListItem(position);
+        final TimerListItem timerListItem = timerAdapter.getItem(position);
         if (timerListItem.started) {
             view.setBackgroundColor(context.getResources().getColor(R.color.invisible));
         } else {
@@ -30,16 +30,7 @@ public class TimerListItemOnClickListener implements AdapterView.OnItemClickList
         }
         timerListItem.started = !timerListItem.started;
 
-        final StringBuilder toastContent = new StringBuilder()
-                .append("Interval: ")
-                .append(timerListItem.interval)
-                .append("\n")
-                .append("Delay: ")
-                .append(timerListItem.delay)
-                .append("\n")
-                .append("Repeat: ")
-                .append(timerListItem.repeat);
 
-        Toast.makeText(context, toastContent.toString(), Toast.LENGTH_LONG).show();
+        Log.i("Item Clicked: ", timerListItem.toString());
     }
 }
