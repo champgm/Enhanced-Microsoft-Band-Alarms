@@ -2,6 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.champgm.enhancedalarm">
 
+    <!-- Band-specific stuff -->
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="com.microsoft.band.service.access.BIND_BAND_SERVICE" />
+
+    <!-- FROM THE SDK README: If you are compiling against version 21 of the Android SDK
+     and the target SDK version in your manifest is set to 21, the BandClient's connect
+     method will fail on devices running Lollipop. The fix for this issue is to use the
+     following uses-sdk tag in the AndroidManifest.xml -->
+    <uses-sdk
+        android:minSdkVersion="17"
+        android:targetSdkVersion="19" />
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"

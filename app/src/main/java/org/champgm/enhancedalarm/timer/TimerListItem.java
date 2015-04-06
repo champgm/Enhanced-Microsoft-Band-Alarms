@@ -1,11 +1,11 @@
 package org.champgm.enhancedalarm.timer;
 
-import java.util.UUID;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.champgm.enhancedalarm.R;
+
+import java.util.UUID;
 
 /**
  * This is an object that contains all of the information needed to fill out a timer's {@link android.view.View} as well
@@ -181,5 +181,16 @@ public class TimerListItem implements Parcelable {
                 ", repeat=" + repeat +
                 ", started=" + started +
                 '}';
+    }
+
+    /**
+     * Creates a copy of this item
+     * 
+     * @return a copy of this item
+     */
+    public TimerListItem clone() {
+        final TimerListItem clone = new TimerListItem(this.interval, this.delay, this.repeat);
+        clone.uuid = this.uuid;
+        return clone;
     }
 }

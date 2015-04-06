@@ -1,7 +1,5 @@
 package org.champgm.enhancedalarm.timer;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
@@ -13,6 +11,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.champgm.enhancedalarm.R;
+
+import java.util.ArrayList;
 
 /**
  * This is the custom adapter for the ListView in {@link org.champgm.enhancedalarm.MainActivity}
@@ -120,6 +120,13 @@ public class TimerAdapter extends BaseAdapter {
             final Button editButton = (Button) timerView.findViewById(R.id.edit_button);
             editButton.setOnClickListener(new TimerListItemEditButtonOnClickListener(position, this, mainActivity, false));
 
+            // Set the right color
+            if (timerListItem.started) {
+                timerView.setBackgroundColor(mainActivity.getResources().getColor(R.color.activated_green));
+            } else {
+                timerView.setBackgroundColor(mainActivity.getResources().getColor(R.color.invisible));
+            }
+
             return timerView;
         }
     }
@@ -182,5 +189,13 @@ public class TimerAdapter extends BaseAdapter {
     private void ensureAddItem() {
         items.remove(TimerListItem.ADD_ITEM);
         items.add(TimerListItem.ADD_ITEM);
+    }
+
+    public ArrayList<TimerListItem> getItems() {
+        final ArrayList<TimerListItem> clonedList = new ArrayList<>();
+        for (final TimerListItem listItem : items) {
+            clonedList.add(listItem.clone());
+        }
+        return clonedList;
     }
 }
