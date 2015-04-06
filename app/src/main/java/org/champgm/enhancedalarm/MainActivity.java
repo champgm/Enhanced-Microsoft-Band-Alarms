@@ -2,7 +2,6 @@ package org.champgm.enhancedalarm;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -18,7 +17,6 @@ import org.champgm.enhancedalarm.timer.TimerAdapter;
 import org.champgm.enhancedalarm.timer.TimerListItem;
 import org.champgm.enhancedalarm.timer.TimerListItemOnClickListener;
 
-import java.util.ArrayList;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeoutException;
 
@@ -27,6 +25,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class MainActivity extends ActionBarActivity {
 
+    private static final String TIMER_LIST_CONTENTS_KEY = "24e426c8-3d9f-435f-afab-55a03addaba3";
     /**
      * This is the meat of the app. This adapter manages all of the timers.
      */
@@ -34,9 +33,7 @@ public class MainActivity extends ActionBarActivity {
     private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
     private BandHelper bandHelper;
 
-    private static final String TIMER_LIST_CONTENTS_KEY ="24e426c8-3d9f-435f-afab-55a03addaba3";
-//    private static final String  ="3035d9fe-2135-42e7-a027-b507d1f6c369";
-
+    // private static final String ="3035d9fe-2135-42e7-a027-b507d1f6c369";
 
     /**
      * auto-generated, not modified
@@ -130,10 +127,16 @@ public class MainActivity extends ActionBarActivity {
         final ListView timerList = (ListView) findViewById(R.id.timerList);
         timerList.setAdapter(timerAdapter);
 
-        //Create a thread scheduler
+        // Create a thread scheduler
         scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5);
 
         // Also, set the on-click listener
-        timerList.setOnItemClickListener(new TimerListItemOnClickListener(timerAdapter, bandHelper,scheduledThreadPoolExecutor, this));
+        timerList.setOnItemClickListener(new TimerListItemOnClickListener(timerAdapter, bandHelper, scheduledThreadPoolExecutor, this));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
     }
 }
