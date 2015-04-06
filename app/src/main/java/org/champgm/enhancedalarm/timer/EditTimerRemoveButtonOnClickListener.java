@@ -5,10 +5,10 @@ import android.view.View;
 import android.widget.Button;
 
 /**
- * On-click listener for the Done button in {@link org.champgm.enhancedalarm.timer.EditTimerActivity} it really just
+ * On-click listener for the Remove button in {@link org.champgm.enhancedalarm.timer.EditTimerActivity} it really just
  * calls a method in the activity
  */
-public class EditTimerDoneButtonOnClickListener implements Button.OnClickListener {
+public class EditTimerRemoveButtonOnClickListener implements Button.OnClickListener {
     private final EditTimerActivity parent;
 
     /**
@@ -17,13 +17,13 @@ public class EditTimerDoneButtonOnClickListener implements Button.OnClickListene
      * @param parent
      *            the Activity that this thing should let know to finish
      */
-    public EditTimerDoneButtonOnClickListener(final EditTimerActivity parent) {
+    public EditTimerRemoveButtonOnClickListener(final EditTimerActivity parent) {
         this.parent = parent;
     }
 
     @Override
     public void onClick(final View v) {
-        Log.i("DoneButton", "Done clicked");
-        parent.doneEditing();
+        Log.i("RemoveButton", "Remove clicked");
+        parent.remove();
     }
 }

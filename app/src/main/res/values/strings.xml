@@ -21,7 +21,7 @@
   <string name="delay_text">Delay:</string>
   <string name="repeat_text">Repeat:</string>
   <string name="done_button">DONE</string>
-  <string name="remove_button">DONE</string>
+  <string name="remove_button">REMOVE</string>
 
   <!-- Meaningful Strings -->
   <string name="infinite_repeats">INF</string>

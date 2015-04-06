@@ -4,31 +4,58 @@ import java.util.UUID;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 import org.champgm.enhancedalarm.R;
 
+/**
+ * This is an object that contains all of the information needed to fill out a timer's {@link android.view.View} as well
+ * as some control keys and objects
+ */
 public class TimerListItem implements Parcelable {
-    public static final int ADD_ITEM_ID = 8345;
+    /**
+     * The UUID for the special add-item button that should always be at the bottom of the list
+     */
     public static final UUID ADD_ITEM_UUID = UUID.fromString("e17a30f6-17eb-4750-a673-75d3d1991144");
+    /**
+     * The reference to the special add-item button that should always be at the bottom of the list
+     */
     public static final TimerListItem ADD_ITEM = new TimerListItem();
+    /**
+     * Some weird thing needed in order to be able to pass around {@link org.champgm.enhancedalarm.timer.TimerListItem}s
+     * in {@link android.content.Intent}s
+     */
     public static final Parcelable.Creator<TimerListItem> CREATOR = new TimerListItemCreator();
+    /**
+     * The time between event firing
+     */
     public final int interval;
+    /**
+     * The delay before the first event fires
+     */
     public final int delay;
+    /**
+     * The number of times to keep sending the event
+     */
     public final int repeat;
+    /**
+     * Flag denoting if this timer is currently running
+     */
     public boolean started = false;
+    /**
+     * The UUID for this thing
+     */
     protected UUID uuid;
 
-    public TimerListItem() {
-        Log.i("TimerListItem", "creating new timer list item");
-        Log.i("TimerListItem", UUID.fromString("e17a30f6-17eb-4750-a673-75d3d1991144").toString());
-
-        interval = R.string.default_interval;
-        delay = R.string.default_delay;
-        repeat = R.string.default_repeat;
-        uuid = ADD_ITEM_UUID;
-    }
-
+    /**
+     * This is probably the constructor you want. It will set the input data and a random UUID.
+     * 
+     * @param interval
+     *            The time between event firing
+     * @param delay
+     *            The delay before the first event fires
+     * @param repeat
+     *            The number of times to keep sending the event
+     */
     public TimerListItem(final int interval, final int delay, final int repeat) {
         this.interval = interval;
         this.delay = delay;
@@ -36,6 +63,12 @@ public class TimerListItem implements Parcelable {
         uuid = UUID.randomUUID();
     }
 
+    /**
+     * Creates an instance. This is part of the {@link android.os.Parcelable} serialization stuff.
+     * 
+     * @param parcel
+     *            the input data to replicate
+     */
     public TimerListItem(final Parcel parcel) {
         interval = parcel.readInt();
         delay = parcel.readInt();
@@ -44,11 +77,35 @@ public class TimerListItem implements Parcelable {
         uuid = UUID.fromString(parcel.readString());
     }
 
+    /**
+     * Creates an instance with some nonsense values and a random {@link java.util.UUID}. The only reason to use this
+     * constructor is to create the add-item item at the end of the list.
+     */
+    protected TimerListItem() {
+        interval = R.string.default_interval;
+        delay = R.string.default_delay;
+        repeat = R.string.default_repeat;
+        uuid = ADD_ITEM_UUID;
+    }
+
+    /**
+     * Auto generated, who knows?
+     * 
+     * @return zero
+     */
     @Override
     public int describeContents() {
         return 0;
     }
 
+    /**
+     * This is like a serialization message, it writes the fields to the output
+     * 
+     * @param destination
+     *            the output for the data
+     * @param flags
+     *            I don't know what this is
+     */
     @Override
     public void writeToParcel(final Parcel destination, final int flags) {
         destination.writeInt(interval);
@@ -58,16 +115,23 @@ public class TimerListItem implements Parcelable {
         destination.writeString(uuid.toString());
     }
 
+    /**
+     * equals method
+     * 
+     * @param other
+     *            the other thing
+     * @return does it equals
+     */
     @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
+    public boolean equals(final Object other) {
+        if (this == other) {
             return true;
         }
-        if (!(o instanceof TimerListItem)) {
+        if (!(other instanceof TimerListItem)) {
             return false;
         }
 
-        final TimerListItem that = (TimerListItem) o;
+        final TimerListItem that = (TimerListItem) other;
 
         if (delay != that.delay) {
             return false;
@@ -88,6 +152,11 @@ public class TimerListItem implements Parcelable {
         return true;
     }
 
+    /**
+     * hash code
+     * 
+     * @return hash code
+     */
     @Override
     public int hashCode() {
         int result = uuid.hashCode();
@@ -98,6 +167,11 @@ public class TimerListItem implements Parcelable {
         return result;
     }
 
+    /**
+     * yeah it does
+     * 
+     * @return a bunch of stuff
+     */
     @Override
     public String toString() {
         return "TimerListItem{" +
