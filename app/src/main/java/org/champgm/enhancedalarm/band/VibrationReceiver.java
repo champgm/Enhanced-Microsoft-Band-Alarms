@@ -6,7 +6,9 @@ import android.content.Intent;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.microsoft.band.notification.VibrationType;public class VibrationReceiver extends BroadcastReceiver {
+import com.microsoft.band.notification.VibrationType;
+
+public class VibrationReceiver extends BroadcastReceiver {
 
     public VibrationReceiver() {
         Log.i("VibrationReceiver", "instantiated");
@@ -15,7 +17,7 @@ import com.microsoft.band.notification.VibrationType;public class VibrationRecei
     @Override
     public void onReceive(final Context context, final Intent intent) {
         Log.i("VibrationReceiver", "got a broadcast");
-        Toast.makeText(context, "vibrating", Toast.LENGTH_LONG);
+        Toast.makeText(context, "vibrating", Toast.LENGTH_LONG).show();
         BandHelper bandHelper = null;
         try {
             Log.i("VibrationReceiver", "trying to make a new band helper");
@@ -28,5 +30,3 @@ import com.microsoft.band.notification.VibrationType;public class VibrationRecei
         }
     }
 }
-
-

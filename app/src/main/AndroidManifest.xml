@@ -15,7 +15,6 @@
         android:targetSdkVersion="19" />
 
     <!-- Vibration Receiver for AlarmManager -->
-    <receiver android:name="org.champgm.enhancedalarm.band.VibrationReceiver" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
@@ -40,6 +39,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.champgm.enhancedalarm.MainActivity" />
         </activity>
+
+        <receiver
+            android:name="org.champgm.enhancedalarm.band.VibrationReceiver"
+            android:enabled="true" />
     </application>
 
 </manifest>
