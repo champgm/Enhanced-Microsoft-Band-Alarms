@@ -1,5 +1,6 @@
 package org.champgm.enhancedalarm.timer;
 
+import android.app.PendingIntent;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -38,6 +39,10 @@ public class TimerListItem implements Parcelable {
      */
     public final int repeat;
     /**
+     * 
+     */
+    public PendingIntent alarmIntent = null;
+    /**
      * Flag denoting if this timer is currently running
      */
     public boolean started = false;
@@ -75,6 +80,11 @@ public class TimerListItem implements Parcelable {
         repeat = parcel.readInt();
         started = parcel.readInt() == 1;
         uuid = UUID.fromString(parcel.readString());
+        if (parcel.readInt() == 1) {
+            alarmIntent = (PendingIntent) parcel.readParcelable(PendingIntent.class.getClassLoader());
+        } else {
+            alarmIntent = null;
+        }
     }
 
     /**
@@ -113,6 +123,13 @@ public class TimerListItem implements Parcelable {
         destination.writeInt(repeat);
         destination.writeInt(started ? 1 : 0);
         destination.writeString(uuid.toString());
+        if (alarmIntent != null) {
+            destination.writeInt(1);
+            destination.writeParcelable(alarmIntent, 0);
+        } else {
+            destination.writeInt(0);
+        }
+
     }
 
     /**
@@ -164,6 +181,7 @@ public class TimerListItem implements Parcelable {
         result = 31 * result + delay;
         result = 31 * result + repeat;
         result = 31 * result + (started ? 1 : 0);
+        result = 31 * result + alarmIntent.hashCode();
         return result;
     }
 
@@ -180,6 +198,7 @@ public class TimerListItem implements Parcelable {
                 ", delay=" + delay +
                 ", repeat=" + repeat +
                 ", started=" + started +
+                ", alarmIntent=" + alarmIntent +
                 '}';
     }
 
@@ -191,6 +210,7 @@ public class TimerListItem implements Parcelable {
     public TimerListItem clone() {
         final TimerListItem clone = new TimerListItem(this.interval, this.delay, this.repeat);
         clone.uuid = this.uuid;
+        clone.alarmIntent = this.alarmIntent;
         return clone;
     }
 }

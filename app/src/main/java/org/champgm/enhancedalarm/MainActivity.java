@@ -1,6 +1,10 @@
 package org.champgm.enhancedalarm;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -12,6 +16,7 @@ import android.widget.Toast;
 import com.microsoft.band.BandException;
 
 import org.champgm.enhancedalarm.band.BandHelper;
+import org.champgm.enhancedalarm.band.VibrationReceiver;
 import org.champgm.enhancedalarm.timer.EditTimerActivity;
 import org.champgm.enhancedalarm.timer.TimerAdapter;
 import org.champgm.enhancedalarm.timer.TimerListItem;
@@ -25,12 +30,11 @@ import java.util.concurrent.TimeoutException;
  */
 public class MainActivity extends ActionBarActivity {
 
-    private static final String TIMER_LIST_CONTENTS_KEY = "24e426c8-3d9f-435f-afab-55a03addaba3";
+    private static final String SHARED_PREFERENCES_KEY = "24e426c8-3d9f-435f-afab-55a03addaba3";
     /**
      * This is the meat of the app. This adapter manages all of the timers.
      */
     private TimerAdapter timerAdapter;
-    private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
     private BandHelper bandHelper;
 
     // private static final String ="3035d9fe-2135-42e7-a027-b507d1f6c369";
@@ -112,6 +116,7 @@ public class MainActivity extends ActionBarActivity {
         // Create a new band helper if needed
         try {
             bandHelper = new BandHelper(this);
+            bandHelper.addTile(this);
         } catch (BandException e) {
             Log.i("MainActivity", "Trouble connecting to band");
         } catch (InterruptedException e) {
@@ -128,15 +133,38 @@ public class MainActivity extends ActionBarActivity {
         timerList.setAdapter(timerAdapter);
 
         // Create a thread scheduler
-        scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5);
+        final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(5);
 
         // Also, set the on-click listener
-        timerList.setOnItemClickListener(new TimerListItemOnClickListener(timerAdapter, bandHelper, scheduledThreadPoolExecutor, this));
+        timerList.setOnItemClickListener(new TimerListItemOnClickListener(timerAdapter, this));
+
+//        Log.i("itemClick", "creating alarm manager");
+//        // Attempt to start the runnable that will keep vibrating the band
+//        final AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+//
+//        Log.i("itemClick", "New intents");
+//        final Intent intent = new Intent(this, VibrationReceiver.class);
+//        intent.setAction("org.champgm.enhancedalarm.band.VibrationReceiver");
+//        intent.setPackage("org.champgm.enhancedalarm.band");
+//        final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 4386, intent, 0);
+//
+//        Log.i("itemClick", "Set repeating alarm");
+//        Log.i("itemClick", String.valueOf(AlarmManager.ELAPSED_REALTIME_WAKEUP));
+//        Log.i("itemClick", String.valueOf(System.currentTimeMillis()));
+//        // alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+//        // // System.currentTimeMillis() +
+//        // timerListItem.delay * 1000,
+//        // timerListItem.interval * 1000, pendingIntent);
+//        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 30 * 1000, pendingIntent);
+
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-    }
+    // @Override
+    // protected void onPause() {
+    // super.onPause();
+    //
+    // SharedPreferences.Editor edit = getSharedPreferences(SHARED_PREFERENCES_KEY, 0).edit();
+    // edit.put
+    //
+    // }
 }

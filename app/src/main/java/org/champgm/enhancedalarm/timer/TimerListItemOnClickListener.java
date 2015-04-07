@@ -1,32 +1,27 @@
 package org.champgm.enhancedalarm.timer;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 
 import org.champgm.enhancedalarm.R;
-import org.champgm.enhancedalarm.band.BandHelper;
-import org.champgm.enhancedalarm.band.Vibrate;
-
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import org.champgm.enhancedalarm.band.VibrationReceiver;
 
 /**
  * The on-click listener for each item that is inside of each timer's view
  */
 public class TimerListItemOnClickListener implements AdapterView.OnItemClickListener {
-    private final BandHelper bandHelper;
-    private final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
     private final TimerAdapter timerAdapter;
     private final Context context;
-    private ScheduledFuture<?> scheduledFuture;
     private View view;
     private TimerListItem timerListItem;
+    private PendingIntent pendingIntent = null;
 
     /**
      * Creates an instance
@@ -36,11 +31,9 @@ public class TimerListItemOnClickListener implements AdapterView.OnItemClickList
      * @param context
      *            this will be view that represents the list item
      */
-    public TimerListItemOnClickListener(final TimerAdapter timerAdapter, final BandHelper bandHelper, final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor, final Context context) {
+    public TimerListItemOnClickListener(final TimerAdapter timerAdapter, final Context context) {
         this.timerAdapter = Preconditions.checkNotNull(timerAdapter, "timerAdapter may not be null.");
-        this.bandHelper = Preconditions.checkNotNull(bandHelper, "bandHelper may not be null.");
         this.context = Preconditions.checkNotNull(context, "context may not be null.");
-        this.scheduledThreadPoolExecutor = Preconditions.checkNotNull(scheduledThreadPoolExecutor, "scheduledThreadPoolExecutor may not be null.");
     }
 
     /**
@@ -57,6 +50,7 @@ public class TimerListItemOnClickListener implements AdapterView.OnItemClickList
      */
     @Override
     public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
+        Log.i("itemClick", "Item clicked");
         this.view = view;
 
         // Get the item from the adapter
@@ -64,15 +58,28 @@ public class TimerListItemOnClickListener implements AdapterView.OnItemClickList
 
         // Ignore the add button item thing, that doesn't need an on-item-click listener.
         if (timerListItem.uuid != TimerListItem.ADD_ITEM_UUID) {
+            Log.i("itemClick", "Not add-item");
             if (timerListItem.started) {
+                Log.i("itemClick", "timer started, canceling");
                 cancelTimer();
             } else {
-                // Attempt to start the runnable that will keep vibrating the band
-                try {
-                    scheduledFuture = scheduledThreadPoolExecutor.scheduleAtFixedRate(new Vibrate(bandHelper, timerListItem.repeat, this), Long.valueOf(timerListItem.delay), Long.valueOf(timerListItem.interval), TimeUnit.SECONDS);
-                } catch (RejectedExecutionException tooMany) {
-                    Toast.makeText(context, "Too many timers started. Stop some.", Toast.LENGTH_LONG);
+                Log.i("itemClick", "timer not started");
+                if (pendingIntent != null) {
+                    Log.i("itemClick", "pending intent not null, canceling timer");
+                    cancelTimer();
                 }
+
+                Log.i("itemClick", "creating alarm manager");
+                // Attempt to start the runnable that will keep vibrating the band
+                final AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+                Log.i("itemClick", "New intents");
+                final Intent intent = new Intent(context, VibrationReceiver.class);
+                pendingIntent = PendingIntent.getBroadcast(context, 4386, intent, 0);
+
+                Log.i("itemClick", "Set repeating alarm");
+                //alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, timerListItem.delay * 1000, timerListItem.interval * 1000, pendingIntent);
+                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), timerListItem.interval * 1000, pendingIntent);
 
                 // Set the background green
                 this.view.setBackgroundColor(context.getResources().getColor(R.color.activated_green));
@@ -81,17 +88,26 @@ public class TimerListItemOnClickListener implements AdapterView.OnItemClickList
         }
     }
 
-    /**
-     * The runnable will also call this when it has iterated the set number of times.
-     */
     public void cancelTimer() {
-        // Cancel the runnable
-        scheduledFuture.cancel(true);
+        if (pendingIntent != null) {
+            Log.i("itemClick", "pending intent not null, creating alarm manager");
+            final AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            Log.i("itemClick", "canceling");
+            alarmManager.cancel(pendingIntent);
+            Log.i("itemClick", "setting intent to null");
+            pendingIntent = null;
+        }
+
+        Log.i("itemClick", "Clearing green background");
         // Set the background color to clear
         view.setBackgroundColor(context.getResources().getColor(R.color.invisible));
         // Toggle the timer status
+
+        Log.i("itemClick", "Started - false");
         timerListItem.started = false;
         // Notify the list adapter that something has changed
+
+        Log.i("itemClick", "Data has changed");
         timerAdapter.notifyDataSetChanged();
     }
 

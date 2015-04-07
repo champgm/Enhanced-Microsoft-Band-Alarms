@@ -46,6 +46,7 @@ public class TimerAdapter extends BaseAdapter {
         this.mainActivity = mainActivity;
         this.layoutInflater = (LayoutInflater) mainActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         items = new ArrayList<>();
+        items.add(new TimerListItem(30, 5, 999));
         items.add(TimerListItem.ADD_ITEM);
     }
 

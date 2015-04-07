@@ -1,7 +1,16 @@
 package org.champgm.enhancedalarm.band;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
+
+import android.app.Activity;
+import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+
+import org.champgm.enhancedalarm.R;
 
 import com.microsoft.band.BandClient;
 import com.microsoft.band.BandClientManager;
@@ -12,33 +21,23 @@ import com.microsoft.band.tiles.BandIcon;
 import com.microsoft.band.tiles.BandTile;
 import com.microsoft.band.tiles.BandTileManager;
 
-import org.champgm.enhancedalarm.MainActivity;
-import org.champgm.enhancedalarm.R;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.UUID;
-import java.util.concurrent.TimeoutException;
-
 /**
  * Created by mc023219 on 4/6/15.
  */
 public class BandHelper {
     public final UUID TILE_UUID = UUID.fromString("7fb1372d-c9ed-41ed-8941-49b12a74d2bd");
     public final String TILE_NAME = "EnhancedTimer";
-    private final MainActivity mainActivity;
+    private final Context context;
     private BandTile bandTile;
     private BandClient bandClient;
 
-    public BandHelper(final MainActivity mainActivity) throws BandException, InterruptedException, TimeoutException {
-        this.mainActivity = mainActivity;
+    public BandHelper(final Context context) throws BandException, InterruptedException, TimeoutException {
+        this.context = context;
         connectToBand();
-        addTile();
     }
 
     public BandClient getBandClient() throws BandException, InterruptedException, TimeoutException {
         connectToBand();
-        addTile();
         return bandClient;
     }
 
@@ -46,7 +45,7 @@ public class BandHelper {
         bandClient.getNotificationManager().vibrate(vibrationType);
     }
 
-    private void addTile() throws BandException, InterruptedException, TimeoutException {
+    public void addTile(Activity activity) throws BandException, InterruptedException, TimeoutException {
         connectToBand();
         if (bandClient == null || !bandClient.isConnected()) {
             Log.i("BandHelper", "NOT CONNECTED");
@@ -63,7 +62,7 @@ public class BandHelper {
             }
 
             if (!foundTile) {
-                tileManager.addTile(mainActivity, getBandTile());
+                tileManager.addTile(activity, getBandTile());
             }
         }
     }
@@ -74,8 +73,8 @@ public class BandHelper {
         }
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inScaled = false;
-        final BandIcon tileIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(mainActivity.getResources(), R.raw.tile, options));
-        final BandIcon badgeIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(mainActivity.getResources(), R.raw.badge, options));
+        final BandIcon tileIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(context.getResources(), R.raw.tile, options));
+        final BandIcon badgeIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(context.getResources(), R.raw.badge, options));
 
         final BandTile.Builder bandTileBuilder = new BandTile.Builder(TILE_UUID, TILE_NAME, tileIcon)
                 .setTileSmallIcon(badgeIcon);
@@ -88,7 +87,7 @@ public class BandHelper {
         final BandDeviceInfo[] pairedBands = BandClientManager.getInstance().getPairedBands();
         Log.i("=======", "=======================");
         Log.i("=======", Arrays.toString(pairedBands));
-        bandClient = BandClientManager.getInstance().create(mainActivity, pairedBands[0]);
+        bandClient = BandClientManager.getInstance().create(context, pairedBands[0]);
 
         new ConnectToBand().execute(bandClient);
     }
