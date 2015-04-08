@@ -78,8 +78,9 @@ public class TimerListItemOnClickListener implements AdapterView.OnItemClickList
                 pendingIntent = PendingIntent.getBroadcast(context, 4386, intent, 0);
 
                 Log.i("itemClick", "Set repeating alarm");
-                //alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, timerListItem.delay * 1000, timerListItem.interval * 1000, pendingIntent);
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), timerListItem.interval * 1000, pendingIntent);
+                alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, timerListItem.delay * 1000, timerListItem.interval * 1000, pendingIntent);
+                // alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), timerListItem.interval
+                // * 1000, pendingIntent);
 
                 // Set the background green
                 this.view.setBackgroundColor(context.getResources().getColor(R.color.activated_green));

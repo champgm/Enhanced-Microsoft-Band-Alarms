@@ -12,7 +12,7 @@
      following uses-sdk tag in the AndroidManifest.xml -->
     <uses-sdk
         android:minSdkVersion="17"
-        android:targetSdkVersion="19" />
+        android:targetSdkVersion="18" />
 
     <!-- Vibration Receiver for AlarmManager -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -43,6 +43,7 @@
         <receiver
             android:name="org.champgm.enhancedalarm.band.VibrationReceiver"
             android:enabled="true" />
+        <service android:name="org.champgm.enhancedalarm.service.BandService" />
     </application>
 
 </manifest>

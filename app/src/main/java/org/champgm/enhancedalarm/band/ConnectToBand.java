@@ -14,20 +14,20 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
     @Override
     protected ConnectionResult doInBackground(final BandClient... clientParams) {
         try {
-            Log.i("====CON", "Trying to connect...");
-            return clientParams[0].connect().await();
+            Thread.sleep(5000);
+            if (!clientParams[0].isConnected()) {
+                Log.i("ConnectToBand", "Trying to connect...");
+                return clientParams[0].connect().await();
+            } else {
+                Log.i("ConnectToBand", "Already connected");
+                return ConnectionResult.OK;
+            }
         } catch (InterruptedException e) {
-            Log.i("====CON", "Connection Timeout");
+            Log.i("ConnectToBand", "\n" + e.toString());
             return ConnectionResult.TIMEOUT;
         } catch (BandException e) {
-            Log.i("====CON", "Internal Error");
+            Log.i("ConnectToBand", "\n" + e.toString());
             return ConnectionResult.INTERNAL_ERROR;
-        }
-    }
-
-    protected void onPostExecute(final ConnectionResult result) {
-        if (result != ConnectionResult.OK) {
-            throw new RuntimeException("Failed to connect to band.");
         }
     }
 }
