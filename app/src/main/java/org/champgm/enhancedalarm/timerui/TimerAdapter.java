@@ -1,4 +1,4 @@
-package org.champgm.enhancedalarm.timer;
+package org.champgm.enhancedalarm.timerui;
 
 import android.app.Activity;
 import android.content.Context;
@@ -10,6 +10,8 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.common.base.Preconditions;
+
 import org.champgm.enhancedalarm.R;
 
 import java.util.ArrayList;
@@ -18,7 +20,6 @@ import java.util.ArrayList;
  * This is the custom adapter for the ListView in {@link org.champgm.enhancedalarm.MainActivity}
  */
 public class TimerAdapter extends BaseAdapter {
-
     /**
      * They key used to store a timer list item in a result intent
      */
@@ -31,23 +32,39 @@ public class TimerAdapter extends BaseAdapter {
      * They key used to store a flag representing if a new item needs to be added
      */
     public static final String PUT_EXTRA_ADD_ITEM = "481001b8-4992-408e-acfd-637415627725";
+    private final ArrayList<TimerListItem> contents;
     private final LayoutInflater layoutInflater;
-    private final ArrayList<TimerListItem> items;
     private final Activity mainActivity;
 
     /**
-     * Creates an instance
+     * Creates an instance with one sample timer item
      * 
      * @param mainActivity
      *            a reference back to the {@link org.champgm.enhancedalarm.MainActivity} that this adapter belongs to
      */
     public TimerAdapter(final Activity mainActivity) {
+        this(mainActivity, newList());
+    }
+
+    /**
+     * Creates an instance with a blank list of contents
+     *
+     * @param mainActivity
+     *            a reference back to the {@link org.champgm.enhancedalarm.MainActivity} that this adapter belongs to
+     */
+    public TimerAdapter(final Activity mainActivity, final ArrayList<TimerListItem> contents) {
+        this.mainActivity = Preconditions.checkNotNull(mainActivity, "mainActivity may not be null.");
+        this.contents = Preconditions.checkNotNull(contents, "contents may not be null.");
+        ensureAddItem();
+
         Log.i("TimerAdapter", "creating new timer adapter");
-        this.mainActivity = mainActivity;
         this.layoutInflater = (LayoutInflater) mainActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        items = new ArrayList<>();
-        items.add(new TimerListItem(30, 5, 999));
-        items.add(TimerListItem.ADD_ITEM);
+    }
+
+    private static ArrayList<TimerListItem> newList() {
+        final ArrayList<TimerListItem> timerListItems = new ArrayList<>();
+        timerListItems.add(new TimerListItem(30, 5, 999));
+        return timerListItems;
     }
 
     /**
@@ -55,7 +72,7 @@ public class TimerAdapter extends BaseAdapter {
      */
     @Override
     public int getCount() {
-        return items.size();
+        return contents.size();
     }
 
     /**
@@ -63,11 +80,11 @@ public class TimerAdapter extends BaseAdapter {
      * 
      * @param position
      *            position in the current array
-     * @return the {@link org.champgm.enhancedalarm.timer.TimerListItem} at that position
+     * @return the {@link TimerListItem} at that position
      */
     @Override
     public TimerListItem getItem(final int position) {
-        return items.get(position);
+        return contents.get(position);
     }
 
     /**
@@ -96,7 +113,7 @@ public class TimerAdapter extends BaseAdapter {
     @Override
     public View getView(final int position, final View convertView, final ViewGroup parent) {
         // Grab the list item corresponding to the view that should be created
-        final TimerListItem timerListItem = items.get(position);
+        final TimerListItem timerListItem = contents.get(position);
         // If this is the special add button, create that, set the button listener, and return it
         if (timerListItem.uuid == TimerListItem.ADD_ITEM_UUID) {
             final View addView = layoutInflater.inflate(R.layout.timer_list_add_item_layout, parent, false);
@@ -139,15 +156,14 @@ public class TimerAdapter extends BaseAdapter {
      *            location of the item to remove
      */
     public void removeItem(final int position) {
-        items.remove(position);
+        contents.remove(position);
 
         // Don't forget to update the list and views!
         updateData();
     }
 
     /**
-     * Replaces an item in the list with a new one. Called by the
-     * {@link org.champgm.enhancedalarm.timer.EditTimerActivity}
+     * Replaces an item in the list with a new one. Called by the {@link EditTimerActivity}
      * 
      * @param position
      *            position of the item to be replaced
@@ -155,8 +171,8 @@ public class TimerAdapter extends BaseAdapter {
      *            the new item
      */
     public void replaceItem(final int position, final TimerListItem newTimerListItem) {
-        items.remove(position);
-        items.add(newTimerListItem);
+        contents.remove(position);
+        contents.add(newTimerListItem);
 
         // Don't forget to update the list and views!
         updateData();
@@ -167,8 +183,8 @@ public class TimerAdapter extends BaseAdapter {
      */
     @Deprecated
     public void logList() {
-        for (final TimerListItem item : items) {
-            Log.i("Timer List[" + items.indexOf(item) + "]", item.toString());
+        for (final TimerListItem item : contents) {
+            Log.i("Timer List[" + contents.indexOf(item) + "]", item.toString());
         }
     }
 
@@ -177,6 +193,7 @@ public class TimerAdapter extends BaseAdapter {
      * any time a list operation is done.
      */
     private void updateData() {
+        // make sure the add button is still there
         ensureAddItem();
 
         // This thing is a superclass method, used to let whatever/whoever is controlling all of this stuff know that
@@ -188,15 +205,16 @@ public class TimerAdapter extends BaseAdapter {
      * This removes the add-item menu option and re-adds it to make sure that it is at the bottom of the list
      */
     private void ensureAddItem() {
-        items.remove(TimerListItem.ADD_ITEM);
-        items.add(TimerListItem.ADD_ITEM);
+        contents.remove(TimerListItem.ADD_ITEM);
+        contents.add(TimerListItem.ADD_ITEM);
     }
 
-    public ArrayList<TimerListItem> getItems() {
-        final ArrayList<TimerListItem> clonedList = new ArrayList<>();
-        for (final TimerListItem listItem : items) {
-            clonedList.add(listItem.clone());
-        }
-        return clonedList;
+    /**
+     * Returns the list of timer items
+     * 
+     * @return the list of timer items
+     */
+    public ArrayList<TimerListItem> getContents() {
+        return contents;
     }
 }

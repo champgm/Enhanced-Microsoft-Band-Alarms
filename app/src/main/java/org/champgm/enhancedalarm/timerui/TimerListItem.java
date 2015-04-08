@@ -1,4 +1,4 @@
-package org.champgm.enhancedalarm.timer;
+package org.champgm.enhancedalarm.timerui;
 
 import android.app.PendingIntent;
 import android.os.Parcel;
@@ -22,7 +22,8 @@ public class TimerListItem implements Parcelable {
      */
     public static final TimerListItem ADD_ITEM = new TimerListItem();
     /**
-     * Some weird thing needed in order to be able to pass around {@link org.champgm.enhancedalarm.timer.TimerListItem}s
+     * Some weird thing needed in order to be able to pass around
+     * {@link org.champgm.enhancedalarm.timerui.TimerListItem}s
      * in {@link android.content.Intent}s
      */
     public static final Parcelable.Creator<TimerListItem> CREATOR = new TimerListItemCreator();
@@ -39,17 +40,18 @@ public class TimerListItem implements Parcelable {
      */
     public final int repeat;
     /**
-     * 
+     * The UUID for this thing
      */
-    public PendingIntent alarmIntent = null;
+    public final UUID uuid;
     /**
      * Flag denoting if this timer is currently running
      */
     public boolean started = false;
     /**
-     * The UUID for this thing
+     * The {@link android.app.PendingIntent} sent to the {@link android.app.AlarmManager} when a timer is started and
+     * used to cancel the alarm when the timer is stopped. You should probably not mess with this.
      */
-    protected UUID uuid;
+    protected PendingIntent alarmIntent = null;
 
     /**
      * This is probably the constructor you want. It will set the input data and a random UUID.
@@ -69,6 +71,24 @@ public class TimerListItem implements Parcelable {
     }
 
     /**
+     * This constructor will allow you to manually set a UUID. Probably don't use this unless you are cloning an
+     * existing item.
+     *
+     * @param interval
+     *            The time between event firing
+     * @param delay
+     *            The delay before the first event fires
+     * @param repeat
+     *            The number of times to keep sending the event
+     */
+    public TimerListItem(final int interval, final int delay, final int repeat, final UUID uuid) {
+        this.interval = interval;
+        this.delay = delay;
+        this.repeat = repeat;
+        this.uuid = uuid;
+    }
+
+    /**
      * Creates an instance. This is part of the {@link android.os.Parcelable} serialization stuff.
      * 
      * @param parcel
@@ -81,7 +101,7 @@ public class TimerListItem implements Parcelable {
         started = parcel.readInt() == 1;
         uuid = UUID.fromString(parcel.readString());
         if (parcel.readInt() == 1) {
-            alarmIntent = (PendingIntent) parcel.readParcelable(PendingIntent.class.getClassLoader());
+            alarmIntent = parcel.readParcelable(PendingIntent.class.getClassLoader());
         } else {
             alarmIntent = null;
         }
@@ -200,17 +220,5 @@ public class TimerListItem implements Parcelable {
                 ", started=" + started +
                 ", alarmIntent=" + alarmIntent +
                 '}';
-    }
-
-    /**
-     * Creates a copy of this item
-     * 
-     * @return a copy of this item
-     */
-    public TimerListItem clone() {
-        final TimerListItem clone = new TimerListItem(this.interval, this.delay, this.repeat);
-        clone.uuid = this.uuid;
-        clone.alarmIntent = this.alarmIntent;
-        return clone;
     }
 }

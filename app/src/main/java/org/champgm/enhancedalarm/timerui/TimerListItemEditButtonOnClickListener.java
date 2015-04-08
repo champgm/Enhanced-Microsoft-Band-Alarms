@@ -1,4 +1,4 @@
-package org.champgm.enhancedalarm.timer;
+package org.champgm.enhancedalarm.timerui;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -22,7 +22,7 @@ public class TimerListItemEditButtonOnClickListener implements Button.OnClickLis
      *            is inside of. Or something. Android is complicated.
      * @param timerAdapter
      *            the timer adapter from the beginning. Will be used to grab the info for the corresponding item and
-     *            send it to the {@link org.champgm.enhancedalarm.timer.EditTimerActivity}.
+     *            send it to the {@link org.champgm.enhancedalarm.timerui.EditTimerActivity}.
      * @param mainActivity
      *            the original {@link org.champgm.enhancedalarm.MainActivity}
      * @param addNew

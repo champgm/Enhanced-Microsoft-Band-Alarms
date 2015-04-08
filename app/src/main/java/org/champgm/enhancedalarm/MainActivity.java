@@ -1,9 +1,8 @@
 package org.champgm.enhancedalarm;
 
-import java.util.concurrent.TimeoutException;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -11,16 +10,19 @@ import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.champgm.enhancedalarm.band.BandHelper;
-import org.champgm.enhancedalarm.timer.EditTimerActivity;
-import org.champgm.enhancedalarm.timer.TimerAdapter;
-import org.champgm.enhancedalarm.timer.TimerListItem;
-import org.champgm.enhancedalarm.timer.TimerListItemOnClickListener;
-
 import com.microsoft.band.BandException;
 
+import org.champgm.enhancedalarm.band.BandHelper;
+import org.champgm.enhancedalarm.timerui.EditTimerActivity;
+import org.champgm.enhancedalarm.timerui.TimerAdapter;
+import org.champgm.enhancedalarm.timerui.TimerListItem;
+import org.champgm.enhancedalarm.timerui.TimerListItemOnClickListener;
+
+import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
+
 /**
- * The main activity class, really just a holder for a {@link org.champgm.enhancedalarm.timer.TimerAdapter}.
+ * The main activity class, really just a holder for a {@link org.champgm.enhancedalarm.timerui.TimerAdapter}.
  */
 public class MainActivity extends ActionBarActivity {
 
@@ -68,10 +70,10 @@ public class MainActivity extends ActionBarActivity {
      *            dunno what this is, it isn't used.
      * @param resultCode
      *            the result of the activity, should be
-     *            {@link org.champgm.enhancedalarm.timer.EditTimerActivity#EDIT_RESULT_SUCCESS} or
-     *            {@link org.champgm.enhancedalarm.timer.EditTimerActivity#DELETE_RESULT_SUCCESS}
+     *            {@link org.champgm.enhancedalarm.timerui.EditTimerActivity#EDIT_RESULT_SUCCESS} or
+     *            {@link org.champgm.enhancedalarm.timerui.EditTimerActivity#DELETE_RESULT_SUCCESS}
      * @param data
-     *            the data returned by the {@link org.champgm.enhancedalarm.timer.EditTimerActivity}
+     *            the data returned by the {@link org.champgm.enhancedalarm.timerui.EditTimerActivity}
      */
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -102,11 +104,64 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Create a new TimerAdapter if needed
+        // Create this app's band tile, if it doesn't exist
+        createTile();
+
+        // Restore or create a new TimerAdapter if needed
+        restoreTimerAdapter(savedInstanceState);
+    }
+
+    private void restoreTimerAdapter(final Bundle savedInstanceState) {
+        // Create a timer adapter with the restored contents, if necessary.
         if (timerAdapter == null) {
-            timerAdapter = new TimerAdapter(this);
+            if (savedInstanceState == null || !savedInstanceState.containsKey(TimerAdapter.PUT_EXTRA_ITEM_KEY)) {
+                timerAdapter = new TimerAdapter(this);
+            } else {
+                final ArrayList<TimerListItem> listItems = savedInstanceState.getParcelableArrayList(TimerAdapter.PUT_EXTRA_ITEM_KEY);
+                timerAdapter = new TimerAdapter(this, listItems);
+            }
         }
 
+        // Create a ListView and assign it the TimerAdapter.
+        final ListView timerList = (ListView) findViewById(R.id.timerList);
+        timerList.setAdapter(timerAdapter);
+
+        // Also, set the on-click listener
+        timerList.setOnItemClickListener(new TimerListItemOnClickListener(timerAdapter, this));
+    }
+
+    @Override
+    protected final void onSaveInstanceState(final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(TimerAdapter.PUT_EXTRA_ITEM_KEY, timerAdapter.getContents());
+    }
+
+    @Override
+    public final void onRestoreInstanceState(final Bundle savedInstanceState, final PersistableBundle persistentState) {
+        super.onRestoreInstanceState(savedInstanceState, persistentState);
+
+        // Restore or create a new TimerAdapter if needed
+        restoreTimerAdapter(savedInstanceState);
+    }
+
+    @Override
+    protected final void onStop() {
+        super.onStop();
+    }
+
+    // @Override
+    // protected void onPause() {
+    // super.onPause();
+    //
+    // SharedPreferences.Editor edit = getSharedPreferences(SHARED_PREFERENCES_KEY, 0).edit();
+    // edit.put
+    //
+    // }
+
+    /**
+     * Attempts to create a tile for this application on the band if it does not exist.
+     */
+    private void createTile() {
         // Create a new band helper if needed
         try {
             bandHelper = new BandHelper(this);
@@ -121,22 +176,6 @@ public class MainActivity extends ActionBarActivity {
         if (bandHelper == null) {
             throw new RuntimeException("Cannot connect to band, cannot proceed");
         }
-
-        // Create a ListView and assign it the TimerAdapter.
-        final ListView timerList = (ListView) findViewById(R.id.timerList);
-        timerList.setAdapter(timerAdapter);
-
-        // Also, set the on-click listener
-        timerList.setOnItemClickListener(new TimerListItemOnClickListener(timerAdapter, this));
-
+        bandHelper.disconnect();
     }
-
-    // @Override
-    // protected void onPause() {
-    // super.onPause();
-    //
-    // SharedPreferences.Editor edit = getSharedPreferences(SHARED_PREFERENCES_KEY, 0).edit();
-    // edit.put
-    //
-    // }
 }

@@ -1,4 +1,4 @@
-package org.champgm.enhancedalarm.timer;
+package org.champgm.enhancedalarm.timerui;
 
 import android.content.Intent;
 import android.os.Bundle;

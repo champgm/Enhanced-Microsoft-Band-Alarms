@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="org.champgm.enhancedalarm.timer.EditTimerActivity"
+            android:name="org.champgm.enhancedalarm.timerui.EditTimerActivity"
             android:label="@string/title_activity_edit_timer"
             android:parentActivityName="org.champgm.enhancedalarm.MainActivity">
             <meta-data
@@ -43,7 +43,7 @@
         <receiver
             android:name="org.champgm.enhancedalarm.band.VibrationReceiver"
             android:enabled="true" />
-        <service android:name="org.champgm.enhancedalarm.service.BandService" />
+        <service android:name="org.champgm.enhancedalarm.band.BandService" />
     </application>
 
 </manifest>

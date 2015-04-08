@@ -1,18 +1,18 @@
-package org.champgm.enhancedalarm.timer;
+package org.champgm.enhancedalarm.timerui;
 
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 /**
- * On-click listener for the Done button in {@link org.champgm.enhancedalarm.timer.EditTimerActivity} it really just
+ * On-click listener for the Done button in {@link org.champgm.enhancedalarm.timerui.EditTimerActivity} it really just
  * calls a method in the activity
  */
 public class EditTimerDoneButtonOnClickListener implements Button.OnClickListener {
     private final EditTimerActivity parent;
 
     /**
-     * Make sure this is the right thing parent.
+     * Creates an instance, will call back to parent when done
      * 
      * @param parent
      *            the Activity that this thing should let know to finish
@@ -21,8 +21,14 @@ public class EditTimerDoneButtonOnClickListener implements Button.OnClickListene
         this.parent = parent;
     }
 
+    /**
+     * Call back to the parent to let it know that the user is done editing
+     * 
+     * @param view
+     *            unused
+     */
     @Override
-    public void onClick(final View v) {
+    public void onClick(final View view) {
         Log.i("DoneButton", "Done clicked");
         parent.doneEditing();
     }
