@@ -50,31 +50,11 @@
             android:ems="10"
             android:inputType="number" />
 
-        <TextView
-            android:id="@+id/repeatView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/delayView"
-            android:layout_marginTop="46dp"
-            android:text="@string/repeat_text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
-
-        <EditText
-            android:id="@+id/repeatText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/repeatView"
-            android:layout_alignStart="@+id/intervalText"
-            android:layout_toEndOf="@id/repeatView"
-            android:ems="10"
-            android:inputType="number" />
-
         <Button
             android:id="@+id/done_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/repeatText"
+            android:layout_below="@id/delayText"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="50dp"
             android:text="@string/done_button" />

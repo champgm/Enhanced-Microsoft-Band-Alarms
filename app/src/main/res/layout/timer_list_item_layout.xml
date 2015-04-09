@@ -8,6 +8,7 @@
         android:id="@+id/interval_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="10dp"
         android:gravity="center">
 
@@ -36,9 +37,8 @@
         android:id="@+id/delay_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="10dp"
-        android:layout_toEndOf="@id/interval_group"
+        android:layout_alignTop="@+id/interval_group"
+        android:layout_centerHorizontal="true"
         android:gravity="center">
 
         <TextView
@@ -62,43 +62,13 @@
 
     </RelativeLayout>
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/repeat_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="10dp"
-        android:layout_toEndOf="@id/delay_group"
-        android:gravity="center">
-
-        <TextView
-            android:id="@+id/repeat_header"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerInParent="true"
-            android:layout_marginBottom="2dp"
-            android:text="@string/repeat_header"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-
-        <TextView
-            android:id="@+id/repeat"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/repeat_header"
-            android:layout_centerInParent="true"
-            android:text="@string/default_repeat"
-            android:textSize="30sp" />
-
-    </RelativeLayout>
-
     <Button
         android:id="@+id/edit_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignBottom="@id/repeat_group"
-        android:layout_marginStart="30dp"
+        android:layout_centerVertical="true"
         android:text="@string/edit_button" />
 
+    <!--android:layout_marginEnd="30dp"-->
 </RelativeLayout>

@@ -32,7 +32,6 @@ public class EditTimerActivity extends ActionBarActivity {
     public static final int DELETE_RESULT_SUCCESS = 8617;
     // public static final int EDIT_RESULT_FAIL = 6168;
 
-    private EditText repeatText;
     private EditText delayText;
     private EditText intervalText;
     private int originalPosition;
@@ -69,15 +68,6 @@ public class EditTimerActivity extends ActionBarActivity {
      * Triggered when the "Done" button is clicked
      */
     protected void doneEditing() {
-
-        // Do some preconditions checks first
-        Integer repeatInt = null;
-        try {
-            repeatInt = Integer.parseInt(repeatText.getText().toString());
-            Log.d("doneEditing", "set repeat to: " + repeatInt);
-        } catch (NumberFormatException nfe) {
-            Toast.makeText(this, "Non numerical value for 'Repeat'", Toast.LENGTH_LONG).show();
-        }
         Integer delayInt = null;
         try {
             delayInt = Integer.parseInt(delayText.getText().toString());
@@ -94,12 +84,14 @@ public class EditTimerActivity extends ActionBarActivity {
         }
 
         // If everything is okay...
-        if (repeatInt != null && delayInt != null && intervalInt != null &&
-                checkSize(repeatInt, "Repeat") && checkSize(delayInt, "Delay") && checkSize(intervalInt, "Interval")) {
+        if (delayInt != null &&
+                intervalInt != null &&
+                checkSize(delayInt, "Delay") &&
+                checkSize(intervalInt, "Interval")) {
 
             // Build a new timer and place it into the intent, along with the position of the timer it is meant to
             // replace
-            final TimerListItem resultTimer = new TimerListItem(intervalInt, delayInt, repeatInt);
+            final TimerListItem resultTimer = new TimerListItem(intervalInt, delayInt);
             final Intent resultIntent = new Intent();
             resultIntent.putExtra(TimerAdapter.PUT_EXTRA_ITEM_KEY, resultTimer);
             resultIntent.putExtra(TimerAdapter.PUT_EXTRA_POSITION_KEY, originalPosition);
@@ -133,7 +125,7 @@ public class EditTimerActivity extends ActionBarActivity {
         final TimerListItem itemToEdit;
         if (addNew) {
             // Instantiate a new one
-            itemToEdit = new TimerListItem(-1, -1, -1);
+            itemToEdit = new TimerListItem(-1, -1);
         } else {
             // Grab the one to be edited from the intent
             itemToEdit = intent.getParcelableExtra(TimerAdapter.PUT_EXTRA_ITEM_KEY);
@@ -148,7 +140,6 @@ public class EditTimerActivity extends ActionBarActivity {
             // Fill out all of the relevant fields from the TimerListItem
             intervalText = (EditText) findViewById(R.id.intervalText);
             delayText = (EditText) findViewById(R.id.delayText);
-            repeatText = (EditText) findViewById(R.id.repeatText);
 
             if (itemToEdit.interval >= 0) {
                 intervalText.setText(String.valueOf(itemToEdit.interval));
@@ -160,12 +151,6 @@ public class EditTimerActivity extends ActionBarActivity {
                 delayText.setText(String.valueOf(itemToEdit.delay));
             } else {
                 delayText.setText("");
-            }
-
-            if (itemToEdit.repeat >= 0) {
-                repeatText.setText(String.valueOf(itemToEdit.repeat));
-            } else {
-                repeatText.setText("");
             }
 
             // This will trigger the doneEditing() method below

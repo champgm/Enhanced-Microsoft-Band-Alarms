@@ -35,10 +35,6 @@ public class TimerListItem implements Parcelable {
      */
     public final int delay;
     /**
-     * The number of times to keep sending the event
-     */
-    public final int repeat;
-    /**
      * The UUID for this thing
      */
     public final UUID uuid;
@@ -54,13 +50,10 @@ public class TimerListItem implements Parcelable {
      *            The time between event firing
      * @param delay
      *            The delay before the first event fires
-     * @param repeat
-     *            The number of times to keep sending the event
      */
-    public TimerListItem(final int interval, final int delay, final int repeat) {
+    public TimerListItem(final int interval, final int delay) {
         this.interval = interval;
         this.delay = delay;
-        this.repeat = repeat;
         uuid = UUID.randomUUID();
     }
 
@@ -72,13 +65,10 @@ public class TimerListItem implements Parcelable {
      *            The time between event firing
      * @param delay
      *            The delay before the first event fires
-     * @param repeat
-     *            The number of times to keep sending the event
      */
-    public TimerListItem(final int interval, final int delay, final int repeat, final UUID uuid) {
+    public TimerListItem(final int interval, final int delay, final UUID uuid) {
         this.interval = interval;
         this.delay = delay;
-        this.repeat = repeat;
         this.uuid = uuid;
     }
 
@@ -91,7 +81,6 @@ public class TimerListItem implements Parcelable {
     public TimerListItem(final Parcel parcel) {
         interval = parcel.readInt();
         delay = parcel.readInt();
-        repeat = parcel.readInt();
         started = parcel.readInt() == 1;
         uuid = UUID.fromString(parcel.readString());
     }
@@ -103,7 +92,6 @@ public class TimerListItem implements Parcelable {
     protected TimerListItem() {
         interval = R.string.default_interval;
         delay = R.string.default_delay;
-        repeat = R.string.default_repeat;
         uuid = ADD_ITEM_UUID;
     }
 
@@ -129,7 +117,6 @@ public class TimerListItem implements Parcelable {
     public void writeToParcel(final Parcel destination, final int flags) {
         destination.writeInt(interval);
         destination.writeInt(delay);
-        destination.writeInt(repeat);
         destination.writeInt(started ? 1 : 0);
         destination.writeString(uuid.toString());
     }
@@ -158,9 +145,6 @@ public class TimerListItem implements Parcelable {
         if (interval != that.interval) {
             return false;
         }
-        if (repeat != that.repeat) {
-            return false;
-        }
         if (started != that.started) {
             return false;
         }
@@ -181,7 +165,6 @@ public class TimerListItem implements Parcelable {
         int result = uuid.hashCode();
         result = 31 * result + interval;
         result = 31 * result + delay;
-        result = 31 * result + repeat;
         result = 31 * result + (started ? 1 : 0);
         return result;
     }
@@ -197,7 +180,6 @@ public class TimerListItem implements Parcelable {
                 "uuid=" + uuid +
                 ", interval=" + interval +
                 ", delay=" + delay +
-                ", repeat=" + repeat +
                 ", started=" + started +
                 '}';
     }

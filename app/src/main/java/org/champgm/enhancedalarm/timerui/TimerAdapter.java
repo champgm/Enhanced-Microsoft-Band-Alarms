@@ -63,7 +63,7 @@ public class TimerAdapter extends BaseAdapter {
 
     private static ArrayList<TimerListItem> newList() {
         final ArrayList<TimerListItem> timerListItems = new ArrayList<>();
-        timerListItems.add(new TimerListItem(30, 5, 999));
+        timerListItems.add(new TimerListItem(30, 5));
         return timerListItems;
     }
 
@@ -127,12 +127,10 @@ public class TimerAdapter extends BaseAdapter {
             // Grab references to all text fields
             final TextView intervalText = (TextView) timerView.findViewById(R.id.interval);
             final TextView delayText = (TextView) timerView.findViewById(R.id.delay);
-            final TextView repeatText = (TextView) timerView.findViewById(R.id.repeat);
 
             // Fill the text fields in
             intervalText.setText(String.valueOf(timerListItem.interval));
             delayText.setText(String.valueOf(timerListItem.delay));
-            repeatText.setText(String.valueOf(timerListItem.repeat));
 
             // Set the listener for the edit button
             final Button editButton = (Button) timerView.findViewById(R.id.edit_button);
