@@ -5,37 +5,37 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.common.base.Preconditions;
+
 /**
  * The on-click listener for the edit button that is inside of each timer's view
  */
 public class TimerListItemEditButtonOnClickListener implements Button.OnClickListener {
     private final TimerAdapter timerAdapter;
     private final int position;
-    private final Activity mainActivity;
     private final boolean addNew;
+    private final Activity activity;
 
     /**
      * Creates an instance
-     * 
+     *
      * @param position
      *            the position of the list-item-view-thing that the edit button that this button listener is assigned to
      *            is inside of. Or something. Android is complicated.
      * @param timerAdapter
      *            the timer adapter from the beginning. Will be used to grab the info for the corresponding item and
-     *            send it to the {@link org.champgm.enhancedalarm.timerui.EditTimerActivity}.
-     * @param mainActivity
-     *            the original {@link org.champgm.enhancedalarm.MainActivity}
+     *            send it to the {@link EditTimerActivity}.
      * @param addNew
      *            flag denoting if this is a new item or not
      */
     public TimerListItemEditButtonOnClickListener(
             final int position,
             final TimerAdapter timerAdapter,
-            final Activity mainActivity,
+            final Activity activity,
             final boolean addNew) {
+        this.timerAdapter = Preconditions.checkNotNull(timerAdapter, "timerAdapter may not be null.");
+        this.activity = Preconditions.checkNotNull(activity, "activity may not be null.");
         this.position = position;
-        this.timerAdapter = timerAdapter;
-        this.mainActivity = mainActivity;
         this.addNew = addNew;
     }
 
@@ -52,6 +52,6 @@ public class TimerListItemEditButtonOnClickListener implements Button.OnClickLis
         // launching the Edit activity from there. When the edit activity is done, it will send its results there. This
         // is sort of cool because you can have the handler method there that has some cases where it handles different
         // types of results, but it just seems kind of hacky. Hopefully I am doing it wrong.
-        mainActivity.startActivityForResult(editIntent, EditTimerActivity.EDIT_REQUEST);
+        activity.startActivityForResult(editIntent, EditTimerActivity.EDIT_REQUEST);
     }
 }

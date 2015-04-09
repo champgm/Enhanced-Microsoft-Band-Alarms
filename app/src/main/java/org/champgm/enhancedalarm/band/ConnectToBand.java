@@ -16,21 +16,21 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
         try {
             // If we're not connected, try to.
             if (!clientParams[0].isConnected()) {
-                Log.i("ConnectToBand", "Trying to connect...");
+                Log.d("ConnectToBand", "Trying to connect...");
                 return tryToConnect(clientParams[0]);
             } else {
                 // Otherwise, that's fine, just return success
-                Log.i("ConnectToBand", "Already connected");
+                Log.d("ConnectToBand", "Already connected");
                 return ConnectionResult.OK;
             }
         } catch (InterruptedException e) {
             // Timeout exception, try again
-            Log.i("ConnectToBand", "Connection timed out. Trying again");
+            Log.d("ConnectToBand", "Connection timed out. Trying again");
             try {
                 return tryToConnect(clientParams[0]);
             } catch (InterruptedException e1) {
                 // Give up.
-                Log.i("ConnectToBand", "Could not connect to band. Try again later?\n" + e1.toString());
+                Log.d("ConnectToBand", "Could not connect to band. Try again later?\n" + e1.toString());
                 return ConnectionResult.TIMEOUT;
             }
         }
@@ -43,7 +43,7 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
             return bandClient.connect().await();
         } catch (BandException e) {
             // Fail.
-            Log.i("ConnectToBand", "Weird error.\n" + e.toString());
+            Log.d("ConnectToBand", "Weird error.\n" + e.toString());
             return ConnectionResult.INTERNAL_ERROR;
         }
     }

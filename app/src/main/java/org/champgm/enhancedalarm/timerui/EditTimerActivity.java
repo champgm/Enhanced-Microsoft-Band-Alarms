@@ -6,6 +6,7 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -73,21 +74,21 @@ public class EditTimerActivity extends ActionBarActivity {
         Integer repeatInt = null;
         try {
             repeatInt = Integer.parseInt(repeatText.getText().toString());
-            Log.i("doneEditing", "set repeat to: " + repeatInt);
+            Log.d("doneEditing", "set repeat to: " + repeatInt);
         } catch (NumberFormatException nfe) {
             Toast.makeText(this, "Non numerical value for 'Repeat'", Toast.LENGTH_LONG).show();
         }
         Integer delayInt = null;
         try {
             delayInt = Integer.parseInt(delayText.getText().toString());
-            Log.i("doneEditing", "set delayInt to: " + delayInt);
+            Log.d("doneEditing", "set delayInt to: " + delayInt);
         } catch (NumberFormatException nfe) {
             Toast.makeText(this, "Non numerical value for 'Delay'", Toast.LENGTH_LONG).show();
         }
         Integer intervalInt = null;
         try {
             intervalInt = Integer.parseInt(intervalText.getText().toString());
-            Log.i("doneEditing", "set intervalInt to: " + intervalInt);
+            Log.d("doneEditing", "set intervalInt to: " + intervalInt);
         } catch (NumberFormatException nfe) {
             Toast.makeText(this, "Non numerical value for 'Interval'", Toast.LENGTH_LONG).show();
         }
@@ -105,7 +106,7 @@ public class EditTimerActivity extends ActionBarActivity {
             setResult(EDIT_RESULT_SUCCESS, resultIntent);
             finish();
         } else {
-            Log.i("doneEditing", "got null for some value");
+            Log.e("doneEditing", "got null for some value");
         }
     }
 
@@ -132,7 +133,7 @@ public class EditTimerActivity extends ActionBarActivity {
         final TimerListItem itemToEdit;
         if (addNew) {
             // Instantiate a new one
-            itemToEdit = new TimerListItem(0, 0, 0);
+            itemToEdit = new TimerListItem(-1, -1, -1);
         } else {
             // Grab the one to be edited from the intent
             itemToEdit = intent.getParcelableExtra(TimerAdapter.PUT_EXTRA_ITEM_KEY);
@@ -149,17 +150,31 @@ public class EditTimerActivity extends ActionBarActivity {
             delayText = (EditText) findViewById(R.id.delayText);
             repeatText = (EditText) findViewById(R.id.repeatText);
 
-            intervalText.setText(String.valueOf(itemToEdit.interval));
-            delayText.setText(String.valueOf(itemToEdit.delay));
-            repeatText.setText(String.valueOf(itemToEdit.repeat));
+            if (itemToEdit.interval >= 0) {
+                intervalText.setText(String.valueOf(itemToEdit.interval));
+            } else {
+                intervalText.setText("");
+            }
+
+            if (itemToEdit.delay >= 0) {
+                delayText.setText(String.valueOf(itemToEdit.delay));
+            } else {
+                delayText.setText("");
+            }
+
+            if (itemToEdit.repeat >= 0) {
+                repeatText.setText(String.valueOf(itemToEdit.repeat));
+            } else {
+                repeatText.setText("");
+            }
 
             // This will trigger the doneEditing() method below
             final Button doneButton = (Button) findViewById(R.id.done_button);
-            doneButton.setOnClickListener(new EditTimerDoneButtonOnClickListener(this));
+            doneButton.setOnClickListener(new EditTimerDoneButtonOnClickListener());
 
             // This will trigger the remove() method below
             final Button removeButton = (Button) findViewById(R.id.remove_button);
-            removeButton.setOnClickListener(new EditTimerRemoveButtonOnClickListener(this));
+            removeButton.setOnClickListener(new EditTimerRemoveButtonOnClickListener());
         }
     }
 
@@ -179,5 +194,33 @@ public class EditTimerActivity extends ActionBarActivity {
             return false;
         }
         return true;
+    }
+
+    public class EditTimerRemoveButtonOnClickListener implements Button.OnClickListener {
+        /**
+         * Will let the parent know that the user is done editing and wants to remove this item.
+         *
+         * @param view
+         *            unused
+         */
+        @Override
+        public void onClick(final View view) {
+            Log.d("RemoveButton", "Remove clicked");
+            EditTimerActivity.this.remove();
+        }
+    }
+
+    public class EditTimerDoneButtonOnClickListener implements Button.OnClickListener {
+        /**
+         * Call back to the parent to let it know that the user is done editing
+         *
+         * @param view
+         *            unused
+         */
+        @Override
+        public void onClick(final View view) {
+            Log.d("DoneButton", "Done clicked");
+            EditTimerActivity.this.doneEditing();
+        }
     }
 }

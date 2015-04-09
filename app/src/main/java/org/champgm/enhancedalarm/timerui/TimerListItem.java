@@ -1,6 +1,5 @@
 package org.champgm.enhancedalarm.timerui;
 
-import android.app.PendingIntent;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -47,11 +46,6 @@ public class TimerListItem implements Parcelable {
      * Flag denoting if this timer is currently running
      */
     public boolean started = false;
-    /**
-     * The {@link android.app.PendingIntent} sent to the {@link android.app.AlarmManager} when a timer is started and
-     * used to cancel the alarm when the timer is stopped. You should probably not mess with this.
-     */
-    protected PendingIntent alarmIntent = null;
 
     /**
      * This is probably the constructor you want. It will set the input data and a random UUID.
@@ -100,11 +94,6 @@ public class TimerListItem implements Parcelable {
         repeat = parcel.readInt();
         started = parcel.readInt() == 1;
         uuid = UUID.fromString(parcel.readString());
-        if (parcel.readInt() == 1) {
-            alarmIntent = parcel.readParcelable(PendingIntent.class.getClassLoader());
-        } else {
-            alarmIntent = null;
-        }
     }
 
     /**
@@ -143,13 +132,6 @@ public class TimerListItem implements Parcelable {
         destination.writeInt(repeat);
         destination.writeInt(started ? 1 : 0);
         destination.writeString(uuid.toString());
-        if (alarmIntent != null) {
-            destination.writeInt(1);
-            destination.writeParcelable(alarmIntent, 0);
-        } else {
-            destination.writeInt(0);
-        }
-
     }
 
     /**
@@ -201,7 +183,6 @@ public class TimerListItem implements Parcelable {
         result = 31 * result + delay;
         result = 31 * result + repeat;
         result = 31 * result + (started ? 1 : 0);
-        result = 31 * result + alarmIntent.hashCode();
         return result;
     }
 
@@ -218,7 +199,18 @@ public class TimerListItem implements Parcelable {
                 ", delay=" + delay +
                 ", repeat=" + repeat +
                 ", started=" + started +
-                ", alarmIntent=" + alarmIntent +
                 '}';
+    }
+
+    private static class TimerListItemCreator implements Parcelable.Creator<TimerListItem> {
+        @Override
+        public TimerListItem createFromParcel(final Parcel in) {
+            return new TimerListItem(in);
+        }
+
+        @Override
+        public TimerListItem[] newArray(final int size) {
+            return new TimerListItem[size];
+        }
     }
 }

@@ -32,12 +32,12 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionResult>
      */
     @Override
     protected ConnectionResult doInBackground(final BandClient... bandClients) {
-        Log.i("SendVibration", "Band should be connected... trying to send.");
+        Log.d("SendVibration", "Band should be connected... trying to send.");
         try {
-            Log.i("SendVibration", "Sending vibration");
+            Log.d("SendVibration", "Sending vibration");
             bandClients[0].getNotificationManager().vibrate(vibrationType).await();
         } catch (Exception e) {
-            Log.i("SendVibration", "\n" + e.toString());
+            Log.d("SendVibration", "\n" + e.toString());
             return ConnectionResult.INTERNAL_ERROR;
         }
 

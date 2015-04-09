@@ -57,7 +57,7 @@ public class TimerAdapter extends BaseAdapter {
         this.contents = Preconditions.checkNotNull(contents, "contents may not be null.");
         ensureAddItem();
 
-        Log.i("TimerAdapter", "creating new timer adapter");
+        Log.d("TimerAdapter", "creating new timer adapter");
         this.layoutInflater = (LayoutInflater) mainActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -140,6 +140,7 @@ public class TimerAdapter extends BaseAdapter {
 
             // Set the right color
             if (timerListItem.started) {
+                // resources MUST be called on main activity view.getResources WILL throw an NPE
                 timerView.setBackgroundColor(mainActivity.getResources().getColor(R.color.activated_green));
             } else {
                 timerView.setBackgroundColor(mainActivity.getResources().getColor(R.color.invisible));
