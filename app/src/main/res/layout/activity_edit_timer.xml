@@ -1,71 +1,88 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        tools:context="org.champgm.enhancedalarm.timerui.EditTimerActivity">
+  <RelativeLayout
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:paddingBottom="@dimen/activity_vertical_margin"
+      android:paddingLeft="@dimen/activity_horizontal_margin"
+      android:paddingRight="@dimen/activity_horizontal_margin"
+      android:paddingTop="@dimen/activity_vertical_margin"
+      tools:context="org.champgm.enhancedalarm.timerui.EditTimerActivity">
 
-        <TextView
-            android:id="@+id/intervalView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:layout_marginTop="83dp"
-            android:text="@string/interval_text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+    <TextView
+        android:id="@+id/intervalView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="83dp"
+        android:text="@string/interval_text"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-        <EditText
-            android:id="@+id/intervalText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@id/intervalView"
-            android:layout_marginStart="20dp"
-            android:layout_toEndOf="@id/intervalView"
-            android:ems="10"
-            android:inputType="number" />
+    <EditText
+        android:id="@+id/intervalText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/intervalView"
+        android:layout_marginStart="20dp"
+        android:layout_toEndOf="@id/intervalView"
+        android:ems="10"
+        android:inputType="number"/>
 
-        <TextView
-            android:id="@+id/delayView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/intervalView"
-            android:layout_marginTop="41dp"
-            android:text="@string/delay_text"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+    <TextView
+        android:id="@+id/delayView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/intervalView"
+        android:layout_marginTop="41dp"
+        android:text="@string/delay_text"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-        <EditText
-            android:id="@+id/delayText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignBottom="@+id/delayView"
-            android:layout_alignStart="@+id/intervalText"
-            android:ems="10"
-            android:inputType="number" />
+    <EditText
+        android:id="@+id/delayText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/delayView"
+        android:layout_alignStart="@+id/intervalText"
+        android:ems="10"
+        android:inputType="number"/>
 
-        <Button
-            android:id="@+id/done_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/delayText"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="50dp"
-            android:text="@string/done_button" />
+    <Spinner
+        android:id="@+id/vibrationPicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/delayText"
+        android:layout_marginTop="50dp"
+        android:spinnerMode="dialog"
+        android:layout_toStartOf="@+id/vibration_test"/>
 
-        <Button
-            android:id="@+id/remove_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/done_button"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="25dp"
-            android:text="@string/remove_button" />
-    </RelativeLayout>
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/vibration_test"
+        android:id="@+id/vibration_test"
+        android:layout_alignTop="@+id/vibrationPicker" android:layout_alignParentEnd="true"/>
+
+    <Button
+        android:id="@+id/done_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/vibrationPicker"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:text="@string/done_button"/>
+
+    <Button
+        android:id="@+id/remove_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/done_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp"
+        android:text="@string/remove_button"/>
+
+  </RelativeLayout>
 </ScrollView>

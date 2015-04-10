@@ -10,11 +10,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 
-import com.google.common.base.Preconditions;
-
 import org.champgm.enhancedalarm.R;
 import org.champgm.enhancedalarm.band.BandService;
 import org.champgm.enhancedalarm.band.VibrationReceiver;
+
+import com.google.common.base.Preconditions;
 
 /**
  * The on-click listener for each item that is inside of each timer's view. I would really prefer this class not be
@@ -57,6 +57,7 @@ public class TimerListItemOnClickListener implements AdapterView.OnItemClickList
             Log.d("itemClick", "New intents");
             final Intent intent = new Intent(view.getContext(), VibrationReceiver.class);
             intent.putExtra(VibrationReceiver.TIMER_UUID_KEY, timerListItem.uuid.toString());
+            intent.putExtra(VibrationReceiver.VIBRATION_TYPE_KEY, timerListItem.vibrationTypeName);
             final PendingIntent pendingIntent = PendingIntent.getBroadcast(view.getContext(), timerListItem.uuid.hashCode(), intent, 0);
 
             Log.d("itemClick", "Not add-item");

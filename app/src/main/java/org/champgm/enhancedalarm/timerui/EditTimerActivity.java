@@ -1,17 +1,28 @@
 package org.champgm.enhancedalarm.timerui;
 
+import java.util.ArrayList;
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import org.champgm.enhancedalarm.R;
+import org.champgm.enhancedalarm.band.VibrationReceiver;
+
+import com.microsoft.band.notification.VibrationType;
 
 /**
  * The activity spawned when a timer needs to be edited or created.
@@ -32,9 +43,24 @@ public class EditTimerActivity extends ActionBarActivity {
     public static final int DELETE_RESULT_SUCCESS = 8617;
     // public static final int EDIT_RESULT_FAIL = 6168;
 
+    private static final String testVibrationString = "TEST-VIBRATION";
+    private static final ArrayList<String> vibrationTypes;
     private EditText delayText;
     private EditText intervalText;
     private int originalPosition;
+
+    static {
+        vibrationTypes = new ArrayList<>(9);
+        vibrationTypes.add(VibrationType.NOTIFICATION_ONE_TONE.name());
+        vibrationTypes.add(VibrationType.NOTIFICATION_TWO_TONE.name());
+        vibrationTypes.add(VibrationType.NOTIFICATION_ALARM.name());
+        vibrationTypes.add(VibrationType.NOTIFICATION_TIMER.name());
+        vibrationTypes.add(VibrationType.ONE_TONE_HIGH.name());
+        vibrationTypes.add(VibrationType.TWO_TONE_HIGH.name());
+        vibrationTypes.add(VibrationType.THREE_TONE_HIGH.name());
+        vibrationTypes.add(VibrationType.RAMP_UP.name());
+        vibrationTypes.add(VibrationType.RAMP_DOWN.name());
+    }
 
     /**
      * auto-generated, not modified
@@ -83,15 +109,18 @@ public class EditTimerActivity extends ActionBarActivity {
             Toast.makeText(this, "Non numerical value for 'Interval'", Toast.LENGTH_LONG).show();
         }
 
+        final Spinner vibrationSpinner = (Spinner) findViewById(R.id.vibrationPicker);
+        final String vibrationType = String.valueOf(vibrationSpinner.getSelectedItem());
+
         // If everything is okay...
         if (delayInt != null &&
                 intervalInt != null &&
-                checkSize(delayInt, "Delay") &&
-                checkSize(intervalInt, "Interval")) {
+                checkDelay(delayInt, "Delay") &&
+                checkInterval(intervalInt, "Interval")) {
 
             // Build a new timer and place it into the intent, along with the position of the timer it is meant to
             // replace
-            final TimerListItem resultTimer = new TimerListItem(intervalInt, delayInt);
+            final TimerListItem resultTimer = new TimerListItem(intervalInt, delayInt, vibrationType);
             final Intent resultIntent = new Intent();
             resultIntent.putExtra(TimerAdapter.PUT_EXTRA_ITEM_KEY, resultTimer);
             resultIntent.putExtra(TimerAdapter.PUT_EXTRA_POSITION_KEY, originalPosition);
@@ -113,6 +142,25 @@ public class EditTimerActivity extends ActionBarActivity {
         finish();
     }
 
+    /**
+     * Triggered when the "Test" button is clicked
+     */
+    protected void testVibration() {
+        // Grab the current spinner value
+        final Spinner vibrationSpinner = (Spinner) findViewById(R.id.vibrationPicker);
+        final String vibrationType = String.valueOf(vibrationSpinner.getSelectedItem());
+
+        // Build a pending intent for the alarm manager
+        final Intent intent = new Intent(this, VibrationReceiver.class);
+        intent.putExtra(VibrationReceiver.TIMER_UUID_KEY, testVibrationString);
+        intent.putExtra(VibrationReceiver.VIBRATION_TYPE_KEY, vibrationType);
+        final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, vibrationType.hashCode(), intent, 0);
+
+        // Set the alarm manager with a trigger time in the past to trigger the service immediately.
+        final AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() - 1, pendingIntent);
+    }
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -125,7 +173,7 @@ public class EditTimerActivity extends ActionBarActivity {
         final TimerListItem itemToEdit;
         if (addNew) {
             // Instantiate a new one
-            itemToEdit = new TimerListItem(-1, -1);
+            itemToEdit = new TimerListItem(-1, -1, VibrationType.NOTIFICATION_ALARM.name());
         } else {
             // Grab the one to be edited from the intent
             itemToEdit = intent.getParcelableExtra(TimerAdapter.PUT_EXTRA_ITEM_KEY);
@@ -153,6 +201,15 @@ public class EditTimerActivity extends ActionBarActivity {
                 delayText.setText("");
             }
 
+            final Spinner vibrationSpinner = (Spinner) findViewById(R.id.vibrationPicker);
+            final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, vibrationTypes);
+            vibrationSpinner.setAdapter(adapter);
+            vibrationSpinner.setSelection(vibrationTypes.indexOf(itemToEdit.vibrationTypeName));
+
+            // This will trigger the testVibration() method below
+            final Button vibrationTestButton = (Button) findViewById(R.id.vibration_test);
+            vibrationTestButton.setOnClickListener(new EditTimerVibrationTestButtonOnClickListener());
+
             // This will trigger the doneEditing() method below
             final Button doneButton = (Button) findViewById(R.id.done_button);
             doneButton.setOnClickListener(new EditTimerDoneButtonOnClickListener());
@@ -164,18 +221,36 @@ public class EditTimerActivity extends ActionBarActivity {
     }
 
     /**
-     * These ranges are sort of arbitrary, they're mostly dictated by the size of the view space. 3 digits looks pretty
+     * These ranges are sort of arbitrary, they're mostly dictated by the size of the view space. 4 digits looks pretty
      * good on my phone, but this should probably be changed in the future.
-     * 
+     *
      * @param value
      *            the numerical value
      * @param valueType
      *            the type of value
      * @return valid or not
      */
-    private boolean checkSize(final int value, final String valueType) {
-        if (value > 999 || value < 1) {
-            Toast.makeText(this, valueType + "cannot be less than 1 or greater than 999.", Toast.LENGTH_LONG).show();
+    private boolean checkInterval(final int value, final String valueType) {
+        if (value > 9999 || value < 1) {
+            Toast.makeText(this, valueType + "cannot be less than 1 or greater than 9999.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * These ranges are sort of arbitrary, they're mostly dictated by the size of the view space. 4 digits looks pretty
+     * good on my phone, but this should probably be changed in the future.
+     *
+     * @param value
+     *            the numerical value
+     * @param valueType
+     *            the type of value
+     * @return valid or not
+     */
+    private boolean checkDelay(final int value, final String valueType) {
+        if (value > 9999 || value < 0) {
+            Toast.makeText(this, valueType + "cannot be less than 0 or greater than 9999.", Toast.LENGTH_LONG).show();
             return false;
         }
         return true;
@@ -206,6 +281,20 @@ public class EditTimerActivity extends ActionBarActivity {
         public void onClick(final View view) {
             Log.d("DoneButton", "Done clicked");
             EditTimerActivity.this.doneEditing();
+        }
+    }
+
+    public class EditTimerVibrationTestButtonOnClickListener implements Button.OnClickListener {
+        /**
+         * Call back to the parent to let it know that the user is done editing
+         *
+         * @param view
+         *            unused
+         */
+        @Override
+        public void onClick(final View view) {
+            Log.d("VibrationTestButton", "Test clicked");
+            EditTimerActivity.this.testVibration();
         }
     }
 }

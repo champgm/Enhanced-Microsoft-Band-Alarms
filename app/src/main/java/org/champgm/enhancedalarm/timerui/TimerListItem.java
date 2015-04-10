@@ -1,17 +1,22 @@
 package org.champgm.enhancedalarm.timerui;
 
+import java.util.UUID;
+
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.apache.commons.lang3.StringUtils;
 import org.champgm.enhancedalarm.R;
 
-import java.util.UUID;
+import com.google.common.base.Preconditions;
+import com.microsoft.band.notification.VibrationType;
 
 /**
  * This is an object that contains all of the information needed to fill out a timer's {@link android.view.View} as well
  * as some control keys and objects
  */
 public class TimerListItem implements Parcelable {
+
     /**
      * The UUID for the special add-item button that should always be at the bottom of the list
      */
@@ -21,11 +26,10 @@ public class TimerListItem implements Parcelable {
      */
     public static final TimerListItem ADD_ITEM = new TimerListItem();
     /**
-     * Some weird thing needed in order to be able to pass around
-     * {@link org.champgm.enhancedalarm.timerui.TimerListItem}s
+     * Some weird thing needed in order to be able to pass around {@link TimerListItem}s
      * in {@link android.content.Intent}s
      */
-    public static final Parcelable.Creator<TimerListItem> CREATOR = new TimerListItemCreator();
+    public static final Creator<TimerListItem> CREATOR = new TimerListItemCreator();
     /**
      * The time between event firing
      */
@@ -42,6 +46,10 @@ public class TimerListItem implements Parcelable {
      * Flag denoting if this timer is currently running
      */
     public boolean started = false;
+    /**
+     * String corresponding to the chosen {@link com.microsoft.band.notification.VibrationType}
+     */
+    public final String vibrationTypeName;
 
     /**
      * This is probably the constructor you want. It will set the input data and a random UUID.
@@ -50,26 +58,15 @@ public class TimerListItem implements Parcelable {
      *            The time between event firing
      * @param delay
      *            The delay before the first event fires
+     * @param vibrationTypeName
+     *            String corresponding to the chosen {@link com.microsoft.band.notification.VibrationType}
      */
-    public TimerListItem(final int interval, final int delay) {
+    public TimerListItem(final int interval, final int delay, final String vibrationTypeName) {
+        Preconditions.checkArgument(!StringUtils.isBlank(vibrationTypeName), "vibrationTypeName may not be null or empty.");
         this.interval = interval;
         this.delay = delay;
+        this.vibrationTypeName = vibrationTypeName;
         uuid = UUID.randomUUID();
-    }
-
-    /**
-     * This constructor will allow you to manually set a UUID. Probably don't use this unless you are cloning an
-     * existing item.
-     *
-     * @param interval
-     *            The time between event firing
-     * @param delay
-     *            The delay before the first event fires
-     */
-    public TimerListItem(final int interval, final int delay, final UUID uuid) {
-        this.interval = interval;
-        this.delay = delay;
-        this.uuid = uuid;
     }
 
     /**
@@ -83,6 +80,7 @@ public class TimerListItem implements Parcelable {
         delay = parcel.readInt();
         started = parcel.readInt() == 1;
         uuid = UUID.fromString(parcel.readString());
+        vibrationTypeName = parcel.readString();
     }
 
     /**
@@ -93,6 +91,7 @@ public class TimerListItem implements Parcelable {
         interval = R.string.default_interval;
         delay = R.string.default_delay;
         uuid = ADD_ITEM_UUID;
+        vibrationTypeName = VibrationType.NOTIFICATION_ALARM.name();
     }
 
     /**
@@ -119,54 +118,7 @@ public class TimerListItem implements Parcelable {
         destination.writeInt(delay);
         destination.writeInt(started ? 1 : 0);
         destination.writeString(uuid.toString());
-    }
-
-    /**
-     * equals method
-     * 
-     * @param other
-     *            the other thing
-     * @return does it equals
-     */
-    @Override
-    public boolean equals(final Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (!(other instanceof TimerListItem)) {
-            return false;
-        }
-
-        final TimerListItem that = (TimerListItem) other;
-
-        if (delay != that.delay) {
-            return false;
-        }
-        if (interval != that.interval) {
-            return false;
-        }
-        if (started != that.started) {
-            return false;
-        }
-        if (!uuid.equals(that.uuid)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * hash code
-     * 
-     * @return hash code
-     */
-    @Override
-    public int hashCode() {
-        int result = uuid.hashCode();
-        result = 31 * result + interval;
-        result = 31 * result + delay;
-        result = 31 * result + (started ? 1 : 0);
-        return result;
+        destination.writeString(vibrationTypeName);
     }
 
     /**
@@ -181,10 +133,41 @@ public class TimerListItem implements Parcelable {
                 ", interval=" + interval +
                 ", delay=" + delay +
                 ", started=" + started +
+                ", vibrationTypeName=" + vibrationTypeName +
                 '}';
     }
 
-    private static class TimerListItemCreator implements Parcelable.Creator<TimerListItem> {
+    @Override
+    public int hashCode() {
+        return new org.apache.commons.lang3.builder.HashCodeBuilder()
+                .append(interval)
+                .append(delay)
+                .append(uuid)
+                .append(started)
+                .append(vibrationTypeName)
+                .toHashCode();
+    }
+
+    @Override
+    public boolean equals(final Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (obj instanceof TimerListItem) {
+            final TimerListItem other = (TimerListItem) obj;
+            return new org.apache.commons.lang3.builder.EqualsBuilder()
+                    .append(interval, other.interval)
+                    .append(delay, other.delay)
+                    .append(uuid, other.uuid)
+                    .append(started, other.started)
+                    .append(vibrationTypeName, other.vibrationTypeName)
+                    .isEquals();
+        }
+        return false;
+    }
+
+    private static class TimerListItemCreator implements Creator<TimerListItem> {
         @Override
         public TimerListItem createFromParcel(final Parcel in) {
             return new TimerListItem(in);

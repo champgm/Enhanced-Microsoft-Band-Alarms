@@ -1,5 +1,8 @@
 package org.champgm.enhancedalarm;
 
+import java.util.ArrayList;
+import java.util.concurrent.TimeoutException;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -10,19 +13,16 @@ import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.microsoft.band.BandClient;
-import com.microsoft.band.BandClientManager;
-import com.microsoft.band.BandDeviceInfo;
-import com.microsoft.band.BandException;
-
 import org.champgm.enhancedalarm.band.BandHelper;
 import org.champgm.enhancedalarm.timerui.EditTimerActivity;
 import org.champgm.enhancedalarm.timerui.TimerAdapter;
 import org.champgm.enhancedalarm.timerui.TimerListItem;
 import org.champgm.enhancedalarm.timerui.TimerListItemOnClickListener;
 
-import java.util.ArrayList;
-import java.util.concurrent.TimeoutException;
+import com.microsoft.band.BandClient;
+import com.microsoft.band.BandClientManager;
+import com.microsoft.band.BandDeviceInfo;
+import com.microsoft.band.BandException;
 
 /**
  * The main activity class, really just a holder for a {@link org.champgm.enhancedalarm.timerui.TimerAdapter}.
@@ -95,6 +95,14 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
+    public final void onRestoreInstanceState(final Bundle savedInstanceState, final PersistableBundle persistentState) {
+        super.onRestoreInstanceState(savedInstanceState, persistentState);
+
+        // Restore or create a new TimerAdapter if needed
+        restoreTimerAdapter(savedInstanceState);
+    }
+
+    @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -104,6 +112,17 @@ public class MainActivity extends ActionBarActivity {
 
         // Restore or create a new TimerAdapter if needed
         restoreTimerAdapter(savedInstanceState);
+    }
+
+    @Override
+    protected final void onSaveInstanceState(final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(TimerAdapter.PUT_EXTRA_ITEM_KEY, timerAdapter.getContents());
+    }
+
+    @Override
+    protected final void onStop() {
+        super.onStop();
     }
 
     private void restoreTimerAdapter(final Bundle savedInstanceState) {
@@ -125,40 +144,16 @@ public class MainActivity extends ActionBarActivity {
         timerList.setOnItemClickListener(new TimerListItemOnClickListener(timerAdapter));
     }
 
-    @Override
-    protected final void onSaveInstanceState(final Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(TimerAdapter.PUT_EXTRA_ITEM_KEY, timerAdapter.getContents());
-    }
-
-    @Override
-    public final void onRestoreInstanceState(final Bundle savedInstanceState, final PersistableBundle persistentState) {
-        super.onRestoreInstanceState(savedInstanceState, persistentState);
-
-        // Restore or create a new TimerAdapter if needed
-        restoreTimerAdapter(savedInstanceState);
-    }
-
-    @Override
-    protected final void onStop() {
-        super.onStop();
-    }
-
     /**
      * Attempts to create a tile for this application on the band if it does not exist.
      */
     private void createTile() {
         // Create a new band client
-        final BandClientManager instance = BandClientManager.getInstance();
-        Log.i("STUFF", instance.toString());
-        final BandDeviceInfo[] pairedBands = instance.getPairedBands();
-        Log.i("STUFF", pairedBands.toString());
-        for (final BandDeviceInfo pairedBand : pairedBands) {
-            Log.i("STUFF", pairedBand.toString());
-        }
-        final BandClient bandClient = instance.create(this, pairedBands[0]);
-        Log.i("STUFF", bandClient.toString());
+        final BandClientManager bandClientManager = BandClientManager.getInstance();
+        final BandDeviceInfo[] pairedBands = bandClientManager.getPairedBands();
+        final BandClient bandClient = bandClientManager.create(this, pairedBands[0]);
 
+        // Add the Tile
         try {
             BandHelper.addTile(bandClient, this);
         } catch (BandException e) {

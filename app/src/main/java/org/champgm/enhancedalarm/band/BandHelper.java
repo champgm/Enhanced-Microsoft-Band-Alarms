@@ -1,9 +1,15 @@
 package org.champgm.enhancedalarm.band;
 
+import java.util.Collection;
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.BitmapFactory;
 import android.util.Log;
+
+import org.champgm.enhancedalarm.R;
 
 import com.google.common.base.Preconditions;
 import com.microsoft.band.BandClient;
@@ -14,12 +20,6 @@ import com.microsoft.band.notification.VibrationType;
 import com.microsoft.band.tiles.BandIcon;
 import com.microsoft.band.tiles.BandTile;
 import com.microsoft.band.tiles.BandTileManager;
-
-import org.champgm.enhancedalarm.R;
-
-import java.util.Collection;
-import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 /**
  * A helper class for interacting with the Microsoft Band
@@ -33,7 +33,7 @@ public class BandHelper {
     // private BandClient bandClient;
 
     /**
-     * Creates an instance and immediately attemps to connect to the band.
+     * Creates an instance and immediately attempts to connect to the band.
      * 
      * @param context
      *            the context to use when creating intents
@@ -67,7 +67,7 @@ public class BandHelper {
 
         // Make sure we're connected
         connectToBand(bandClient);
-        if (bandClient == null || !bandClient.isConnected()) {
+        if (!bandClient.isConnected()) {
             Log.i("BandHelper", "NOT CONNECTED");
         } else {
             // Instantiate the tile manager and get a list of existing tiles
@@ -112,11 +112,6 @@ public class BandHelper {
 
     /**
      * Connects to the band
-     * 
-     * @throws com.microsoft.band.BandException
-     *             if the band cannot be connected
-     * @throws InterruptedException
-     *             if there is some unexpected issue
      */
     public static void connectToBand(final BandClient bandClient) {
         if (bandClient != null && !bandClient.isConnected()) {
@@ -142,7 +137,7 @@ public class BandHelper {
 
     public static BandClient getBandClient(final Context context, final int position) {
         final BandDeviceInfo[] bands = getBands();
-        return BandClientManager.getInstance().create(context, bands[0]);
+        return BandClientManager.getInstance().create(context, bands[position]);
     }
 
     public static BandDeviceInfo[] getBands() {

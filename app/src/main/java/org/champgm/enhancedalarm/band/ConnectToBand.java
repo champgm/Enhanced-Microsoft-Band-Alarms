@@ -44,6 +44,11 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
         return ConnectionResult.TIMEOUT;
     }
 
+    @Override
+    protected ConnectionResult doInBackground(final BandClient... clientParams) {
+        return tryToConnect(clientParams[0]);
+    }
+
     private static ConnectionResult connectOnce(final BandClient bandClient) {
         if (!bandClient.isConnected()) {
             Log.d("ConnectToBand", "Trying to connect...");
@@ -64,10 +69,5 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
             Log.d("ConnectToBand", "Already connected");
             return ConnectionResult.OK;
         }
-    }
-
-    @Override
-    protected ConnectionResult doInBackground(final BandClient... clientParams) {
-        return tryToConnect(clientParams[0]);
     }
 }

@@ -9,7 +9,7 @@ import com.microsoft.band.ConnectionResult;
 import com.microsoft.band.notification.VibrationType;
 
 /**
- * Created by mc023219 on 4/7/15.
+ * A task for sending vibration to the band.
  */
 public class SendVibration extends AsyncTask<BandClient, Void, ConnectionResult> {
     /**
@@ -33,7 +33,7 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionResult>
      *
      * @param bandClient
      *            the client to use to send the vibration
-     * @return
+     * @return the {@link com.microsoft.band.ConnectionResult}
      */
     public static ConnectionResult sendVibration(final BandClient bandClient, final VibrationType vibrationType) {
         int connectionAttemptCount = 1;
@@ -54,6 +54,18 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionResult>
         return ConnectionResult.TIMEOUT;
     }
 
+    /**
+     * Attempts to connect to a band
+     *
+     * @param bandClients
+     *            band clients, the first of which will be connected
+     * @return the {@link com.microsoft.band.ConnectionResult}
+     */
+    @Override
+    protected ConnectionResult doInBackground(final BandClient... bandClients) {
+        return sendVibration(bandClients[0], vibrationType);
+    }
+
     private static ConnectionResult sendVibrationOnce(final BandClient bandClient, final VibrationType vibrationType) {
         try {
             bandClient.getNotificationManager().vibrate(vibrationType).await();
@@ -61,17 +73,5 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionResult>
         } catch (Exception e) {
             return ConnectionResult.INTERNAL_ERROR;
         }
-    }
-
-    /**
-     * Attempts to
-     * NOTE: MAKE SURE THE CLIENT IS CONNECTED BEFORE ATTEMPTING
-     *
-     * @param bandClients
-     * @return
-     */
-    @Override
-    protected ConnectionResult doInBackground(final BandClient... bandClients) {
-        return sendVibration(bandClients[0], vibrationType);
     }
 }

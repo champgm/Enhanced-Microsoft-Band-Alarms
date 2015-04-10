@@ -13,9 +13,7 @@ import com.microsoft.band.notification.VibrationType;
  * A service class to maintain a connection to the Microsoft Band and send vibration alarms.
  */
 public class BandService extends Service {
-    final BandServiceBinder binder = new BandServiceBinder();
     private BandClient bandClient = null;
-
     /**
      * Creates an instance, passes "BandService" to the superclass as its name.
      */
@@ -28,6 +26,7 @@ public class BandService extends Service {
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
         Log.i("BandService", "Received command to vibrate for timer uuid: " + intent.getStringExtra(VibrationReceiver.TIMER_UUID_KEY));
+        final String vibrationType = intent.getStringExtra(VibrationReceiver.VIBRATION_TYPE_KEY);
 
         // Create the band client if we haven't already
         if (bandClient == null) {
@@ -38,7 +37,7 @@ public class BandService extends Service {
 
         // Send the vibration
         Log.d("BandService", "Sending vibration to: " + bandClient);
-        BandHelper.sendVibration(VibrationType.THREE_TONE_HIGH, bandClient);
+        BandHelper.sendVibration(VibrationType.valueOf(vibrationType), bandClient);
 
         return START_STICKY;
     }
@@ -63,6 +62,7 @@ public class BandService extends Service {
         Log.d("BandService", "Service will be destroyed.");
         BandHelper.disconnect(bandClient);
     }
+    final BandServiceBinder binder = new BandServiceBinder();
 
     public class BandServiceBinder extends Binder {
         BandService getService() {

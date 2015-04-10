@@ -1,5 +1,7 @@
 package org.champgm.enhancedalarm.timerui;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
@@ -10,11 +12,10 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.google.common.base.Preconditions;
-
 import org.champgm.enhancedalarm.R;
 
-import java.util.ArrayList;
+import com.google.common.base.Preconditions;
+import com.microsoft.band.notification.VibrationType;
 
 /**
  * This is the custom adapter for the ListView in {@link org.champgm.enhancedalarm.MainActivity}
@@ -59,12 +60,6 @@ public class TimerAdapter extends BaseAdapter {
 
         Log.d("TimerAdapter", "creating new timer adapter");
         this.layoutInflater = (LayoutInflater) mainActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
-    private static ArrayList<TimerListItem> newList() {
-        final ArrayList<TimerListItem> timerListItems = new ArrayList<>();
-        timerListItems.add(new TimerListItem(30, 5));
-        return timerListItems;
     }
 
     /**
@@ -178,13 +173,18 @@ public class TimerAdapter extends BaseAdapter {
     }
 
     /**
-     * Just a debug method, prints the list's contents, probably not needed anymore
+     * Returns the list of timer items
+     * 
+     * @return the list of timer items
      */
-    @Deprecated
-    public void logList() {
-        for (final TimerListItem item : contents) {
-            Log.i("Timer List[" + contents.indexOf(item) + "]", item.toString());
-        }
+    public ArrayList<TimerListItem> getContents() {
+        return contents;
+    }
+
+    private static ArrayList<TimerListItem> newList() {
+        final ArrayList<TimerListItem> timerListItems = new ArrayList<>();
+        timerListItems.add(new TimerListItem(30, 5, VibrationType.THREE_TONE_HIGH.name()));
+        return timerListItems;
     }
 
     /**
@@ -206,14 +206,5 @@ public class TimerAdapter extends BaseAdapter {
     private void ensureAddItem() {
         contents.remove(TimerListItem.ADD_ITEM);
         contents.add(TimerListItem.ADD_ITEM);
-    }
-
-    /**
-     * Returns the list of timer items
-     * 
-     * @return the list of timer items
-     */
-    public ArrayList<TimerListItem> getContents() {
-        return contents;
     }
 }

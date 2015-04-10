@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">UILearning</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">Enhanced Alarm</string>
     <string name="action_settings">Settings</string>
 
     <!-- Timer List Item Strings -->
@@ -20,6 +19,7 @@
     <string name="delay_text">Delay:</string>
     <string name="done_button">DONE</string>
     <string name="remove_button">REMOVE</string>
+    <string name="vibration_test">TEST</string>
 
     <!-- Meaningful Strings -->
     <string name="infinite_repeats">INF</string>

@@ -9,7 +9,16 @@ import android.util.Log;
  * A {@link android.content.BroadcastReceiver} which will vibrate the Microsoft Band
  */
 public class VibrationReceiver extends BroadcastReceiver {
+
+    /**
+     * The key that should be used to store timer UUIDs in the intent that this receiver will receive
+     */
     public static final String TIMER_UUID_KEY = "4fb3b86a-70af-4dba-812e-964f4478a50d";
+    /**
+     * The key that should be used to store the {@link com.microsoft.band.notification.VibrationType}, that should be
+     * sent to the band, in the intent that this receiver will receive
+     */
+    public static final String VIBRATION_TYPE_KEY = "4fb3b86a-70af-4dba-812e-964f4478a50d";
 
     /**
      * Creates an instance
@@ -19,7 +28,7 @@ public class VibrationReceiver extends BroadcastReceiver {
     }
 
     /**
-     * Starts the {@link BandIntentService}
+     * Starts the {@link BandService} and sends a vibration intent to it
      * 
      * @param context
      *            used to start the service
@@ -29,11 +38,10 @@ public class VibrationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, final Intent intent) {
         Log.d("VibrationReceiver", "Received broadcast, starting service.");
-        // final Intent bandServiceIntent = new Intent(context, BandIntentService.class);
-        // context.startService(bandServiceIntent);
 
         final Intent bandServiceIntent = new Intent(context, BandService.class);
         bandServiceIntent.putExtra(TIMER_UUID_KEY, intent.getStringExtra(TIMER_UUID_KEY));
+        bandServiceIntent.putExtra(VIBRATION_TYPE_KEY, intent.getStringExtra(VIBRATION_TYPE_KEY));
         context.startService(bandServiceIntent);
     }
 }
