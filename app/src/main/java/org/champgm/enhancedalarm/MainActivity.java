@@ -1,28 +1,20 @@
 package org.champgm.enhancedalarm;
 
-import java.util.ArrayList;
-import java.util.concurrent.TimeoutException;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import org.champgm.enhancedalarm.band.BandHelper;
 import org.champgm.enhancedalarm.timerui.EditTimerActivity;
 import org.champgm.enhancedalarm.timerui.TimerAdapter;
 import org.champgm.enhancedalarm.timerui.TimerListItem;
 import org.champgm.enhancedalarm.timerui.TimerListItemOnClickListener;
 
-import com.microsoft.band.BandClient;
-import com.microsoft.band.BandClientManager;
-import com.microsoft.band.BandDeviceInfo;
-import com.microsoft.band.BandException;
+import java.util.ArrayList;
 
 /**
  * The main activity class, really just a holder for a {@link org.champgm.enhancedalarm.timerui.TimerAdapter}.
@@ -108,7 +100,9 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
 
         // Create this app's band tile, if it doesn't exist
-        createTile();
+        // NOTE: it seems like this isn't really necessary. Also, if we don't do this, it will save one or two of those
+        // crazy leaked resource exceptions.
+        // createTile();
 
         // Restore or create a new TimerAdapter if needed
         restoreTimerAdapter(savedInstanceState);
@@ -146,24 +140,26 @@ public class MainActivity extends ActionBarActivity {
 
     /**
      * Attempts to create a tile for this application on the band if it does not exist.
+     * NOTE: it seems like this isn't really necessary. Also, if we don't do this, it will save one or two of those
+     * crazy leaked resource exceptions.
      */
-    private void createTile() {
-        // Create a new band client
-        final BandClientManager bandClientManager = BandClientManager.getInstance();
-        final BandDeviceInfo[] pairedBands = bandClientManager.getPairedBands();
-        final BandClient bandClient = bandClientManager.create(this, pairedBands[0]);
-
-        // Add the Tile
-        try {
-            BandHelper.addTile(bandClient, this);
-        } catch (BandException e) {
-            Log.i("MainActivity", "Trouble connecting to band");
-        } catch (InterruptedException e) {
-            Log.i("MainActivity", "Connection to band interrupted.");
-        } catch (TimeoutException e) {
-            Log.i("MainActivity", "Timeout connecting to band.");
-        }
-
-        BandHelper.disconnect(bandClient);
-    }
+    // private void createTile() {
+    // // Create a new band client
+    // final BandClientManager bandClientManager = BandClientManager.getInstance();
+    // final BandDeviceInfo[] pairedBands = bandClientManager.getPairedBands();
+    // final BandClient bandClient = bandClientManager.create(this, pairedBands[0]);
+    //
+    // // Add the Tile
+    // try {
+    // BandHelper.addTile(bandClient, this);
+    // } catch (BandException e) {
+    // Log.i("MainActivity", "Trouble connecting to band");
+    // } catch (InterruptedException e) {
+    // Log.i("MainActivity", "Connection to band interrupted.");
+    // } catch (TimeoutException e) {
+    // Log.i("MainActivity", "Timeout connecting to band.");
+    // }
+    //
+    // BandHelper.disconnect(bandClient);
+    // }
 }
