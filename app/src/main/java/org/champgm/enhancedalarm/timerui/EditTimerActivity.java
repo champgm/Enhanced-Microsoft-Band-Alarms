@@ -1,7 +1,5 @@
 package org.champgm.enhancedalarm.timerui;
 
-import java.util.ArrayList;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -19,10 +17,12 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.microsoft.band.notification.VibrationType;
+
 import org.champgm.enhancedalarm.R;
 import org.champgm.enhancedalarm.band.VibrationReceiver;
 
-import com.microsoft.band.notification.VibrationType;
+import java.util.ArrayList;
 
 /**
  * The activity spawned when a timer needs to be edited or created.
