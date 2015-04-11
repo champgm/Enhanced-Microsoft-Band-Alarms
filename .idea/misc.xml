@@ -3,16 +3,15 @@
   <component name="EclipseCodeFormatter">
     <option name="defaultSettings" value="true" />
     <option name="formatter" value="ECLIPSE" />
-    <option name="id" value="1418150516065" />
+    <option name="id" value="1427500106206" />
     <option name="name" value="default" />
-    <option name="optimizeImports" value="false" />
-    <option name="pathToConfigFileJava" value="$USER_HOME$/Dropbox/Eclipse Code Format.xml" />
+    <option name="pathToConfigFileJava" value="E:/Dropbox/Eclipse Code Format.xml" />
     <option name="selectedJavaProfile" value="Population Health Conventions" />
   </component>
   <component name="EntryPointsManager">
     <entry_points version="2.0" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" assert-keyword="true" jdk-15="true" project-jdk-name="1.7" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" assert-keyword="true" jdk-15="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="masterDetails">
