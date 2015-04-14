@@ -14,7 +14,7 @@
     <string name="add_button">ADD</string>
 
     <!-- Edit Timer Strings -->
-    <string name="title_activity_edit_timer">EditTimerActivity</string>
+    <string name="title_activity_edit_timer">Edit Timer</string>
     <string name="interval_text">Interval:</string>
     <string name="delay_text">Delay:</string>
     <string name="done_button">DONE</string>

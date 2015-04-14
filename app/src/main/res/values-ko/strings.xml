@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">향상된 알람</string>
+    <string name="action_settings">설정</string>
+
+    <!-- Timer List Item Strings -->
+    <string name="delay_header">시작 지연</string>
+    <string name="default_interval">30</string>
+    <string name="interval_header">간격</string>
+    <string name="default_delay">5</string>
+    <string name="repeat_header">반복</string>
+    <string name="edit_button">편집</string>
+    <string name="add_button">추가</string>
+
+    <!-- Edit Timer Strings -->
+    <string name="title_activity_edit_timer">편집 타이머</string>
+    <string name="interval_text">간격:</string>
+    <string name="delay_text">지연:</string>
+    <string name="done_button">끝난</string>
+    <string name="remove_button">삭제</string>
+    <string name="vibration_test">테스트</string>
+
+    <!-- Meaningful Strings -->
+    <string name="infinite_repeats">INF</string>
+
+</resources>
