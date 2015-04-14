@@ -7,7 +7,6 @@ import java.util.concurrent.TimeoutException;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
 import org.champgm.enhancedalarm.R;
 
@@ -67,9 +66,7 @@ public class BandHelper {
 
         // Make sure we're connected
         connectToBand(bandClient);
-        if (!bandClient.isConnected()) {
-            Log.i("BandHelper", "NOT CONNECTED");
-        } else {
+        if (bandClient.isConnected()) {
             // Instantiate the tile manager and get a list of existing tiles
             final BandTileManager tileManager = bandClient.getTileManager();
             final Collection<BandTile> tiles = bandClient.getTileManager().getTiles().await();
@@ -91,6 +88,38 @@ public class BandHelper {
     }
 
     /**
+     * Connects to the band
+     */
+    public static void connectToBand(final BandClient bandClient) {
+        if (bandClient != null && !bandClient.isConnected()) {
+            Preconditions.checkNotNull(bandClient, "bandClient may not be null.");
+            new ConnectToBand().execute(bandClient);
+        }
+    }
+
+    /**
+     * Disconnects.
+     */
+    public static void disconnect(final BandClient bandClient) {
+        if (bandClient != null && bandClient.isConnected()) {
+            bandClient.disconnect();
+        }
+    }
+
+    public static BandClient getBandClient(final Context context, final int position) {
+        final BandDeviceInfo[] bands = getBands();
+        return BandClientManager.getInstance().create(context, bands[position]);
+    }
+
+    public static BandDeviceInfo[] getBands() {
+        return BandClientManager.getInstance().getPairedBands();
+    }
+
+    public static void sendVibration(final VibrationType vibrationType, final BandClient bandClient) {
+        new SendVibration(vibrationType).execute(bandClient);
+    }
+
+    /**
      * Creates the {@link com.microsoft.band.tiles.BandTile} object for this app
      * 
      * @return the tile object
@@ -108,44 +137,5 @@ public class BandHelper {
 
         // Return it
         return bandTileBuilder.build();
-    }
-
-    /**
-     * Connects to the band
-     */
-    public static void connectToBand(final BandClient bandClient) {
-        if (bandClient != null && !bandClient.isConnected()) {
-            Preconditions.checkNotNull(bandClient, "bandClient may not be null.");
-            Log.d("BandHelper", "Connecting to band.");
-            new ConnectToBand().execute(bandClient);
-        } else {
-            Log.d("BandHelper", "BandClient already connected.");
-        }
-    }
-
-    /**
-     * Disconnects.
-     */
-    public static void disconnect(final BandClient bandClient) {
-        if (bandClient != null && bandClient.isConnected()) {
-            Log.d("BandHelper", "Disconnecting from band.");
-            bandClient.disconnect();
-        } else {
-            Log.d("BandHelper", "Band not connected, cannot disconnect.");
-        }
-    }
-
-    public static BandClient getBandClient(final Context context, final int position) {
-        final BandDeviceInfo[] bands = getBands();
-        return BandClientManager.getInstance().create(context, bands[position]);
-    }
-
-    public static BandDeviceInfo[] getBands() {
-        return BandClientManager.getInstance().getPairedBands();
-    }
-
-    public static void sendVibration(final VibrationType vibrationType, final BandClient bandClient) {
-        Log.d("BandHelper", "Sending vibration type: " + vibrationType.toString());
-        new SendVibration(vibrationType).execute(bandClient);
     }
 }

@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.champgm.enhancedalarm.R;
+import org.champgm.enhancedalarm.util.TimestampHelper;
 
 import com.google.common.base.Preconditions;
 import com.microsoft.band.notification.VibrationType;
@@ -21,14 +22,6 @@ import com.microsoft.band.notification.VibrationType;
  * This is the custom adapter for the ListView in {@link org.champgm.enhancedalarm.MainActivity}
  */
 public class TimerAdapter extends BaseAdapter {
-    /**
-     * They key used to store a timer list item in a result intent
-     */
-    public static final String PUT_EXTRA_ITEM_KEY = "641b707a-f6f1-4eea-ae88-482c44edd955";
-    /**
-     * They key used to store a position (in the TimerAdapter's ArrayList) in a result intent
-     */
-    public static final String PUT_EXTRA_POSITION_KEY = "6f4ca2b5-b84c-4d12-8dc2-52f52ba1ff90";
     /**
      * They key used to store a flag representing if a new item needs to be added
      */
@@ -111,21 +104,21 @@ public class TimerAdapter extends BaseAdapter {
         final TimerListItem timerListItem = contents.get(position);
         // If this is the special add button, create that, set the button listener, and return it
         if (timerListItem.uuid == TimerListItem.ADD_ITEM_UUID) {
-            final View addView = layoutInflater.inflate(R.layout.timer_list_add_item_layout, parent, false);
+            final View addView = layoutInflater.inflate(R.layout.timer_list_add, parent, false);
             final Button addButton = (Button) addView.findViewById(R.id.add_button);
             addButton.setOnClickListener(new TimerListItemEditButtonOnClickListener(position, this, mainActivity, true));
             return addView;
         } else {
             // Create a new view
-            final View timerView = layoutInflater.inflate(R.layout.timer_list_item_layout, parent, false);
+            final View timerView = layoutInflater.inflate(R.layout.timer_list_item, parent, false);
 
             // Grab references to all text fields
             final TextView intervalText = (TextView) timerView.findViewById(R.id.interval);
             final TextView delayText = (TextView) timerView.findViewById(R.id.delay);
 
             // Fill the text fields in
-            intervalText.setText(String.valueOf(timerListItem.interval));
-            delayText.setText(String.valueOf(timerListItem.delay));
+            intervalText.setText(TimestampHelper.secondsToTimestamp(timerListItem.interval));
+            delayText.setText(TimestampHelper.secondsToTimestamp(timerListItem.delay));
 
             // Set the listener for the edit button
             final Button editButton = (Button) timerView.findViewById(R.id.edit_button);

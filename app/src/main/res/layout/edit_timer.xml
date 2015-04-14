@@ -5,7 +5,7 @@
 
   <RelativeLayout
       android:layout_width="match_parent"
-      android:layout_height="match_parent"
+      android:layout_height="wrap_content"
       android:paddingBottom="@dimen/activity_vertical_margin"
       android:paddingLeft="@dimen/activity_horizontal_margin"
       android:paddingRight="@dimen/activity_horizontal_margin"
@@ -13,58 +13,68 @@
       tools:context="org.champgm.enhancedalarm.timerui.EditTimerActivity">
 
     <TextView
-        android:id="@+id/intervalView"
+        android:id="@+id/intervalLabel"
+        android:maxLength="9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:layout_marginStart="50dp"
+        android:paddingBottom="10dp"
         android:layout_marginTop="83dp"
         android:text="@string/interval_text"
         android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-    <EditText
-        android:id="@+id/intervalText"
+    <Button
+        android:id="@+id/intervalTimestamp"
+        android:maxLength="9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/intervalView"
-        android:layout_marginStart="20dp"
-        android:layout_toEndOf="@id/intervalView"
-        android:ems="10"
-        android:inputType="number"/>
+        android:layout_alignBottom="@id/intervalLabel"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="50dp"
+        android:text="@string/default_timestamp"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <TextView
-        android:id="@+id/delayView"
+        android:id="@+id/delayLabel"
+        android:maxLength="6"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/intervalView"
+        android:layout_below="@+id/intervalLabel"
+        android:layout_marginStart="50dp"
+        android:paddingBottom="10dp"
         android:layout_marginTop="41dp"
         android:text="@string/delay_text"
         android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-    <EditText
-        android:id="@+id/delayText"
+    <Button
+        android:id="@+id/delayTimestamp"
+        android:maxLength="9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/delayView"
-        android:layout_alignStart="@+id/intervalText"
-        android:ems="10"
-        android:inputType="number"/>
+        android:layout_alignBottom="@+id/delayLabel"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="50dp"
+        android:text="@string/default_timestamp"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <Spinner
         android:id="@+id/vibrationPicker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/delayText"
+        android:layout_below="@+id/delayTimestamp"
         android:layout_marginTop="50dp"
-        android:spinnerMode="dialog"
-        android:layout_toStartOf="@+id/vibration_test"/>
+        android:layout_toStartOf="@+id/vibration_test"
+        android:spinnerMode="dialog"/>
 
     <Button
+        android:id="@+id/vibration_test"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/vibration_test"
-        android:id="@+id/vibration_test"
-        android:layout_alignTop="@+id/vibrationPicker" android:layout_alignParentEnd="true"/>
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/vibrationPicker"
+        android:text="@string/vibration_test"/>
 
     <Button
         android:id="@+id/done_button"

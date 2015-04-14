@@ -1,49 +1,68 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.champgm.enhancedalarm">
+          package="org.champgm.enhancedalarm">
+  <!--
+FROM THE SDK README: If you are compiling against version 21 of the Android SDK
+   and the target SDK version in your manifest is set to 21, the BandClient's connect
+   method will fail on devices running Lollipop. The fix for this issue is to use the
+   following uses-sdk tag in the AndroidManifest.xml
+  -->
+  <uses-sdk
+      android:minSdkVersion="17"
+      android:targetSdkVersion="18"/>
 
-    <!-- Band-specific stuff -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="com.microsoft.band.service.access.BIND_BAND_SERVICE" />
+  <!-- Band-specific stuff -->
+  <uses-permission android:name="android.permission.BLUETOOTH"/>
+  <uses-permission android:name="com.microsoft.band.service.access.BIND_BAND_SERVICE"/>
 
-    <!-- FROM THE SDK README: If you are compiling against version 21 of the Android SDK
-     and the target SDK version in your manifest is set to 21, the BandClient's connect
-     method will fail on devices running Lollipop. The fix for this issue is to use the
-     following uses-sdk tag in the AndroidManifest.xml -->
-    <uses-sdk
-        android:minSdkVersion="17"
-        android:targetSdkVersion="18" />
+  <!-- Vibration Receiver for AlarmManager -->
+  <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
-    <!-- Vibration Receiver for AlarmManager -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+  <!--<android:uses-permission-->
+  <!--android:name="android.permission.WRITE_EXTERNAL_STORAGE"-->
+  <!--android:maxSdkVersion="18" />-->
+  <!--<android:uses-permission android:name="android.permission.READ_PHONE_STATE" />-->
+  <!--<android:uses-permission-->
+  <!--android:name="android.permission.READ_EXTERNAL_STORAGE"-->
+  <!--android:maxSdkVersion="18" />-->
 
-    <application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme">
-        <activity
-            android:name="org.champgm.enhancedalarm.MainActivity"
-            android:label="@string/app_name">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+  <application
+      android:allowBackup="true"
+      android:icon="@drawable/ic_launcher"
+      android:label="@string/app_name"
+      android:theme="@style/AppTheme">
+    <activity
+        android:name="org.champgm.enhancedalarm.MainActivity"
+        android:label="@string/app_name">
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="org.champgm.enhancedalarm.timerui.EditTimerActivity"
-            android:label="@string/title_activity_edit_timer"
-            android:parentActivityName="org.champgm.enhancedalarm.MainActivity">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.champgm.enhancedalarm.MainActivity" />
-        </activity>
+        <category android:name="android.intent.category.LAUNCHER"/>
+      </intent-filter>
+    </activity>
+    <activity
+        android:name="org.champgm.enhancedalarm.timerui.EditTimerActivity"
+        android:label="@string/title_activity_edit_timer"
+        android:parentActivityName=".MainActivity">
+      <meta-data
+          android:name="android.support.PARENT_ACTIVITY"
+          android:value="org.champgm.enhancedalarm.MainActivity"/>
+    </activity>
 
-        <receiver
-            android:name="org.champgm.enhancedalarm.band.VibrationReceiver"
-            android:enabled="true" />
-        <service android:name="org.champgm.enhancedalarm.band.BandService" />
-    </application>
+    <receiver
+        android:name="org.champgm.enhancedalarm.band.VibrationReceiver"
+        android:enabled="true"/>
+
+    <service android:name="org.champgm.enhancedalarm.band.BandService"/>
+
+    <activity
+        android:name="org.champgm.enhancedalarm.timerui.TimerInputActivity"
+        android:label="@string/title_activity_timer_input"
+        android:parentActivityName="org.champgm.enhancedalarm.timerui.EditTimerActivity">
+      <meta-data
+          android:name="android.support.PARENT_ACTIVITY"
+          android:value="org.champgm.enhancedalarm.timerui.EditTimerActivity"/>
+    </activity>
+  </application>
 
 </manifest>

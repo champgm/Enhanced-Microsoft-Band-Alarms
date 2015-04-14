@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
 
 import com.microsoft.band.BandClient;
 import com.microsoft.band.notification.VibrationType;
@@ -14,29 +13,26 @@ import com.microsoft.band.notification.VibrationType;
  */
 public class BandService extends Service {
     private BandClient bandClient = null;
+
     /**
      * Creates an instance, passes "BandService" to the superclass as its name.
      */
     public BandService() {
         super();
-        Log.d("BandService", "Service instantiated.");
     }
 
     @Override
     public int onStartCommand(final Intent intent, final int flags, final int startId) {
         super.onStartCommand(intent, flags, startId);
-        Log.i("BandService", "Received command to vibrate for timer uuid: " + intent.getStringExtra(VibrationReceiver.TIMER_UUID_KEY));
         final String vibrationType = intent.getStringExtra(VibrationReceiver.VIBRATION_TYPE_KEY);
 
         // Create the band client if we haven't already
         if (bandClient == null) {
-            Log.d("BandService", "No band client yet, creating new one.");
             bandClient = BandHelper.getBandClient(this, 0);
             BandHelper.connectToBand(bandClient);
         }
 
         // Send the vibration
-        Log.d("BandService", "Sending vibration to: " + bandClient);
         BandHelper.sendVibration(VibrationType.valueOf(vibrationType), bandClient);
 
         return START_STICKY;
@@ -59,9 +55,9 @@ public class BandService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d("BandService", "Service will be destroyed.");
         BandHelper.disconnect(bandClient);
     }
+
     final BandServiceBinder binder = new BandServiceBinder();
 
     public class BandServiceBinder extends Binder {

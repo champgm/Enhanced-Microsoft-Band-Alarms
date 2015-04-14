@@ -1,5 +1,7 @@
 package org.champgm.enhancedalarm;
 
+import java.util.ArrayList;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -13,8 +15,6 @@ import org.champgm.enhancedalarm.timerui.EditTimerActivity;
 import org.champgm.enhancedalarm.timerui.TimerAdapter;
 import org.champgm.enhancedalarm.timerui.TimerListItem;
 import org.champgm.enhancedalarm.timerui.TimerListItemOnClickListener;
-
-import java.util.ArrayList;
 
 /**
  * The main activity class, really just a holder for a {@link org.champgm.enhancedalarm.timerui.TimerAdapter}.
@@ -68,8 +68,8 @@ public class MainActivity extends ActionBarActivity {
         // The result of editing was actually an edited timer
         if (EditTimerActivity.EDIT_RESULT_SUCCESS == resultCode) {
             // Grab the resultant timer and its position in the TimerAdapter's ArrayList
-            final TimerListItem resultTimer = data.getParcelableExtra(TimerAdapter.PUT_EXTRA_ITEM_KEY);
-            final int resultPosition = data.getIntExtra(TimerAdapter.PUT_EXTRA_POSITION_KEY, 999);
+            final TimerListItem resultTimer = data.getParcelableExtra(TimerListItem.PUT_EXTRA_ITEM_KEY);
+            final int resultPosition = data.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
 
             // Hopefully this never happens...
             if (resultPosition == 999) {
@@ -81,7 +81,7 @@ public class MainActivity extends ActionBarActivity {
         } else if (EditTimerActivity.DELETE_RESULT_SUCCESS == resultCode) {
             // The result of editing was a removed timer.
             // Grab the position and remove the item at that position.
-            final int resultPosition = data.getIntExtra(TimerAdapter.PUT_EXTRA_POSITION_KEY, 999);
+            final int resultPosition = data.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
             timerAdapter.removeItem(resultPosition);
         }
     }
@@ -97,12 +97,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        // Create this app's band tile, if it doesn't exist
-        // NOTE: it seems like this isn't really necessary. Also, if we don't do this, it will save one or two of those
-        // crazy leaked resource exceptions.
-        // createTile();
+        setContentView(R.layout.main);
 
         // Restore or create a new TimerAdapter if needed
         restoreTimerAdapter(savedInstanceState);
@@ -111,7 +106,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected final void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(TimerAdapter.PUT_EXTRA_ITEM_KEY, timerAdapter.getContents());
+        outState.putParcelableArrayList(TimerListItem.PUT_EXTRA_ITEM_KEY, timerAdapter.getContents());
     }
 
     @Override
@@ -122,10 +117,10 @@ public class MainActivity extends ActionBarActivity {
     private void restoreTimerAdapter(final Bundle savedInstanceState) {
         // Create a timer adapter with the restored contents, if necessary.
         if (timerAdapter == null) {
-            if (savedInstanceState == null || !savedInstanceState.containsKey(TimerAdapter.PUT_EXTRA_ITEM_KEY)) {
+            if (savedInstanceState == null || !savedInstanceState.containsKey(TimerListItem.PUT_EXTRA_ITEM_KEY)) {
                 timerAdapter = new TimerAdapter(this);
             } else {
-                final ArrayList<TimerListItem> listItems = savedInstanceState.getParcelableArrayList(TimerAdapter.PUT_EXTRA_ITEM_KEY);
+                final ArrayList<TimerListItem> listItems = savedInstanceState.getParcelableArrayList(TimerListItem.PUT_EXTRA_ITEM_KEY);
                 timerAdapter = new TimerAdapter(this, listItems);
             }
         }
@@ -137,29 +132,4 @@ public class MainActivity extends ActionBarActivity {
         // Also, set the on-click listener
         timerList.setOnItemClickListener(new TimerListItemOnClickListener(timerAdapter));
     }
-
-    /**
-     * Attempts to create a tile for this application on the band if it does not exist.
-     * NOTE: it seems like this isn't really necessary. Also, if we don't do this, it will save one or two of those
-     * crazy leaked resource exceptions.
-     */
-    // private void createTile() {
-    // // Create a new band client
-    // final BandClientManager bandClientManager = BandClientManager.getInstance();
-    // final BandDeviceInfo[] pairedBands = bandClientManager.getPairedBands();
-    // final BandClient bandClient = bandClientManager.create(this, pairedBands[0]);
-    //
-    // // Add the Tile
-    // try {
-    // BandHelper.addTile(bandClient, this);
-    // } catch (BandException e) {
-    // Log.i("MainActivity", "Trouble connecting to band");
-    // } catch (InterruptedException e) {
-    // Log.i("MainActivity", "Connection to band interrupted.");
-    // } catch (TimeoutException e) {
-    // Log.i("MainActivity", "Timeout connecting to band.");
-    // }
-    //
-    // BandHelper.disconnect(bandClient);
-    // }
 }
