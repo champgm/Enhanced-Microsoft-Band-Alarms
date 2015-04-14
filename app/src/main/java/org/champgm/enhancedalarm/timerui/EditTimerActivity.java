@@ -164,7 +164,7 @@ public class EditTimerActivity extends ActionBarActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_timer);
+        setContentView(R.layout.edit_timer);
 
         // Find out if we are adding a new timer, or editing an existing one
         final Intent intent = getIntent();

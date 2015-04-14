@@ -97,7 +97,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main);
 
         // Create this app's band tile, if it doesn't exist
         // NOTE: it seems like this isn't really necessary. Also, if we don't do this, it will save one or two of those

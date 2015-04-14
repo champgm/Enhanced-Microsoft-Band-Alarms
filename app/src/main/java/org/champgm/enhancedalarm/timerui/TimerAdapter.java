@@ -111,13 +111,13 @@ public class TimerAdapter extends BaseAdapter {
         final TimerListItem timerListItem = contents.get(position);
         // If this is the special add button, create that, set the button listener, and return it
         if (timerListItem.uuid == TimerListItem.ADD_ITEM_UUID) {
-            final View addView = layoutInflater.inflate(R.layout.timer_list_add_item_layout, parent, false);
+            final View addView = layoutInflater.inflate(R.layout.timer_list_add, parent, false);
             final Button addButton = (Button) addView.findViewById(R.id.add_button);
             addButton.setOnClickListener(new TimerListItemEditButtonOnClickListener(position, this, mainActivity, true));
             return addView;
         } else {
             // Create a new view
-            final View timerView = layoutInflater.inflate(R.layout.timer_list_item_layout, parent, false);
+            final View timerView = layoutInflater.inflate(R.layout.timer_list_item, parent, false);
 
             // Grab references to all text fields
             final TextView intervalText = (TextView) timerView.findViewById(R.id.interval);

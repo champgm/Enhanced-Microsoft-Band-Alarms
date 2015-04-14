@@ -22,6 +22,4 @@ proguard/
 # Log Files
 *.log
 
-#Stuff I added
-UILearning.iml
-AndroidUILearning.iml
+
