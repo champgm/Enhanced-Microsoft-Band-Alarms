@@ -43,8 +43,8 @@ public class TimerListItemEditButtonOnClickListener implements Button.OnClickLis
     public void onClick(final View view) {
         // Basically, just put all of the input information into the Intent for the edit activity
         final Intent editIntent = new Intent(view.getContext(), EditTimerActivity.class);
-        editIntent.putExtra(TimerAdapter.PUT_EXTRA_ITEM_KEY, timerAdapter.getItem(position));
-        editIntent.putExtra(TimerAdapter.PUT_EXTRA_POSITION_KEY, position);
+        editIntent.putExtra(TimerListItem.PUT_EXTRA_ITEM_KEY, timerAdapter.getItem(position));
+        editIntent.putExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, position);
         editIntent.putExtra(TimerAdapter.PUT_EXTRA_ADD_ITEM, addNew);
 
         // There MUST be a better way to do this. This is an on-click listener, so you're probably not supposed to start

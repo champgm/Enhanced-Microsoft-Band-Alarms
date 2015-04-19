@@ -2,7 +2,7 @@
 manifest
 ADDED from AndroidManifest.xml:2:1
 	package
-		ADDED from AndroidManifest.xml:3:5
+		ADDED from AndroidManifest.xml:3:11
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0
 	android:versionName
@@ -13,79 +13,87 @@ ADDED from AndroidManifest.xml:2:1
 	android:versionCode
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0
-uses-permission#android.permission.BLUETOOTH
-ADDED from AndroidManifest.xml:6:5
-	android:name
-		ADDED from AndroidManifest.xml:6:22
-uses-permission#com.microsoft.band.service.access.BIND_BAND_SERVICE
-ADDED from AndroidManifest.xml:7:5
-	android:name
-		ADDED from AndroidManifest.xml:7:22
 uses-sdk
-ADDED from AndroidManifest.xml:13:5
+ADDED from AndroidManifest.xml:10:3
 MERGED from com.android.support:appcompat-v7:21.0.3:15:5
 MERGED from com.android.support:support-v4:21.0.3:15:5
 	android:targetSdkVersion
-		ADDED from AndroidManifest.xml:15:9
+		ADDED from AndroidManifest.xml:12:7
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0
 	android:minSdkVersion
-		ADDED from AndroidManifest.xml:14:9
+		ADDED from AndroidManifest.xml:11:7
 		INJECTED from AndroidManifest.xml:0:0
 		INJECTED from AndroidManifest.xml:0:0
-uses-permission#android.permission.WAKE_LOCK
-ADDED from AndroidManifest.xml:18:5
+uses-permission#android.permission.BLUETOOTH
+ADDED from AndroidManifest.xml:15:3
 	android:name
-		ADDED from AndroidManifest.xml:18:22
+		ADDED from AndroidManifest.xml:15:20
+uses-permission#com.microsoft.band.service.access.BIND_BAND_SERVICE
+ADDED from AndroidManifest.xml:16:3
+	android:name
+		ADDED from AndroidManifest.xml:16:20
+uses-permission#android.permission.WAKE_LOCK
+ADDED from AndroidManifest.xml:19:3
+	android:name
+		ADDED from AndroidManifest.xml:19:20
 application
-ADDED from AndroidManifest.xml:20:5
+ADDED from AndroidManifest.xml:29:3
 MERGED from com.android.support:appcompat-v7:21.0.3:16:5
 MERGED from com.android.support:support-v4:21.0.3:16:5
 	android:label
-		ADDED from AndroidManifest.xml:23:9
+		ADDED from AndroidManifest.xml:32:7
 	android:allowBackup
-		ADDED from AndroidManifest.xml:21:9
+		ADDED from AndroidManifest.xml:30:7
 	android:icon
-		ADDED from AndroidManifest.xml:22:9
+		ADDED from AndroidManifest.xml:31:7
 	android:theme
-		ADDED from AndroidManifest.xml:24:9
+		ADDED from AndroidManifest.xml:33:7
 activity#org.champgm.enhancedalarm.MainActivity
-ADDED from AndroidManifest.xml:25:9
+ADDED from AndroidManifest.xml:34:5
 	android:label
-		ADDED from AndroidManifest.xml:27:13
+		ADDED from AndroidManifest.xml:36:9
 	android:name
-		ADDED from AndroidManifest.xml:26:13
+		ADDED from AndroidManifest.xml:35:9
 intent-filter#android.intent.action.MAIN+android.intent.category.LAUNCHER
-ADDED from AndroidManifest.xml:28:13
+ADDED from AndroidManifest.xml:37:7
 action#android.intent.action.MAIN
-ADDED from AndroidManifest.xml:29:17
+ADDED from AndroidManifest.xml:38:9
 	android:name
-		ADDED from AndroidManifest.xml:29:25
+		ADDED from AndroidManifest.xml:38:17
 category#android.intent.category.LAUNCHER
-ADDED from AndroidManifest.xml:31:17
+ADDED from AndroidManifest.xml:40:9
 	android:name
-		ADDED from AndroidManifest.xml:31:27
+		ADDED from AndroidManifest.xml:40:19
 activity#org.champgm.enhancedalarm.timerui.EditTimerActivity
-ADDED from AndroidManifest.xml:34:9
+ADDED from AndroidManifest.xml:43:5
 	android:label
-		ADDED from AndroidManifest.xml:36:13
+		ADDED from AndroidManifest.xml:45:9
 	android:parentActivityName
-		ADDED from AndroidManifest.xml:37:13
+		ADDED from AndroidManifest.xml:46:9
 	android:name
-		ADDED from AndroidManifest.xml:35:13
+		ADDED from AndroidManifest.xml:44:9
 meta-data#android.support.PARENT_ACTIVITY
-ADDED from AndroidManifest.xml:38:13
+ADDED from AndroidManifest.xml:47:7
 	android:value
-		ADDED from AndroidManifest.xml:40:17
+		ADDED from AndroidManifest.xml:49:11
 	android:name
-		ADDED from AndroidManifest.xml:39:17
+		ADDED from AndroidManifest.xml:48:11
 receiver#org.champgm.enhancedalarm.band.VibrationReceiver
-ADDED from AndroidManifest.xml:43:9
+ADDED from AndroidManifest.xml:52:5
 	android:enabled
-		ADDED from AndroidManifest.xml:45:13
+		ADDED from AndroidManifest.xml:54:9
 	android:name
-		ADDED from AndroidManifest.xml:44:13
+		ADDED from AndroidManifest.xml:53:9
 service#org.champgm.enhancedalarm.band.BandService
-ADDED from AndroidManifest.xml:46:9
+ADDED from AndroidManifest.xml:56:5
 	android:name
-		ADDED from AndroidManifest.xml:46:18
+		ADDED from AndroidManifest.xml:56:14
+activity#org.champgm.enhancedalarm.timerui.TimerInputActivity
+ADDED from AndroidManifest.xml:58:5
+	android:label
+		ADDED from AndroidManifest.xml:60:9
+	android:parentActivityName
+		ADDED from AndroidManifest.xml:61:9
+	android:name
+		ADDED from AndroidManifest.xml:59:9

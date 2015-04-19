@@ -51,22 +51,18 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
 
     private static ConnectionResult connectOnce(final BandClient bandClient) {
         if (!bandClient.isConnected()) {
-            Log.d("ConnectToBand", "Trying to connect...");
             try {
                 // Try to connect
                 return bandClient.connect().await();
             } catch (BandException e) {
                 // Fail.
-                Log.d("ConnectToBand", "Weird error.\n" + e.toString());
                 return ConnectionResult.INTERNAL_ERROR;
             } catch (InterruptedException e1) {
                 // Give up.
-                Log.d("ConnectToBand", "Could not connect to band. Try again later?\n" + e1.toString());
                 return ConnectionResult.TIMEOUT;
             }
         } else {
             // Otherwise, that's fine, just return success
-            Log.d("ConnectToBand", "Already connected");
             return ConnectionResult.OK;
         }
     }

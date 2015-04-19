@@ -31,6 +31,14 @@ public class TimerListItem implements Parcelable {
      */
     public static final Creator<TimerListItem> CREATOR = new TimerListItemCreator();
     /**
+     * They key used to store a timer list item in a result intent
+     */
+    public static final String PUT_EXTRA_ITEM_KEY = "641b707a-f6f1-4eea-ae88-482c44edd955";
+    /**
+     * They key used to store a position (in the TimerAdapter's ArrayList) in a result intent
+     */
+    public static final String PUT_EXTRA_POSITION_KEY = "6f4ca2b5-b84c-4d12-8dc2-52f52ba1ff90";
+    /**
      * The time between event firing
      */
     public final int interval;
@@ -62,7 +70,7 @@ public class TimerListItem implements Parcelable {
      *            String corresponding to the chosen {@link com.microsoft.band.notification.VibrationType}
      */
     public TimerListItem(final int interval, final int delay, final String vibrationTypeName) {
-        Preconditions.checkArgument(!StringUtils.isBlank(vibrationTypeName), "vibrationTypeName may not be null or empty.");
+        Preconditions.checkArgument(StringUtils.isNotBlank(vibrationTypeName), "vibrationTypeName may not be null or empty.");
         this.interval = interval;
         this.delay = delay;
         this.vibrationTypeName = vibrationTypeName;
