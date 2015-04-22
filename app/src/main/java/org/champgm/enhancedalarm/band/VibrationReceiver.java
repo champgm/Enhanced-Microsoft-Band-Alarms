@@ -29,7 +29,7 @@ public class VibrationReceiver extends BroadcastReceiver {
      */
     @Override
     public void onReceive(final Context context, final Intent intent) {
-
+        // Create an intent, put the necessary timer UID and vibration type on it, and use it to start the BandService
         final Intent bandServiceIntent = new Intent(context, BandService.class);
         bandServiceIntent.putExtra(TIMER_UUID_KEY, intent.getStringExtra(TIMER_UUID_KEY));
         bandServiceIntent.putExtra(VIBRATION_TYPE_KEY, intent.getStringExtra(VIBRATION_TYPE_KEY));

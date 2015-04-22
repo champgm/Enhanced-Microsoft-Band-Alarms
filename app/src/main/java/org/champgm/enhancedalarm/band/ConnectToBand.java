@@ -44,11 +44,13 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
         return ConnectionResult.TIMEOUT;
     }
 
-    @Override
-    protected ConnectionResult doInBackground(final BandClient... clientParams) {
-        return tryToConnect(clientParams[0]);
-    }
-
+    /**
+     * Attempts to connect to the band one time and eats any exceptions that might occur.
+     * 
+     * @param bandClient
+     *            the client to use to connect
+     * @return hopefully {@link com.microsoft.band.ConnectionResult#OK}
+     */
     private static ConnectionResult connectOnce(final BandClient bandClient) {
         if (!bandClient.isConnected()) {
             try {
@@ -65,5 +67,17 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
             // Otherwise, that's fine, just return success
             return ConnectionResult.OK;
         }
+    }
+
+    /**
+     * Asynchronous call to connect to the band.
+     *
+     * @param clientParams
+     *            a vararg of {@link com.microsoft.band.BandClient}s
+     * @return hopefully {@link ConnectionResult#OK}
+     */
+    @Override
+    protected ConnectionResult doInBackground(final BandClient... clientParams) {
+        return tryToConnect(clientParams[0]);
     }
 }

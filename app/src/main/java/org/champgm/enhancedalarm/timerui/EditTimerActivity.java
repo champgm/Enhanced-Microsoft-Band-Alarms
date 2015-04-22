@@ -1,16 +1,12 @@
 package org.champgm.enhancedalarm.timerui;
 
-import java.util.ArrayList;
-
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -18,16 +14,19 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.microsoft.band.notification.VibrationType;
+
 import org.champgm.enhancedalarm.R;
+import org.champgm.enhancedalarm.band.BandHelper;
 import org.champgm.enhancedalarm.band.VibrationReceiver;
 import org.champgm.enhancedalarm.util.TimestampHelper;
 
-import com.microsoft.band.notification.VibrationType;
+import java.util.ArrayList;
 
 /**
  * The activity spawned when a timer needs to be edited or created.
  */
-public class EditTimerActivity extends ActionBarActivity {
+public class EditTimerActivity extends Activity {
 
     /**
      * The key used to signify that a timer needs to be edited
@@ -49,6 +48,7 @@ public class EditTimerActivity extends ActionBarActivity {
     private int originalPosition;
 
     static {
+        // Fill the types array with existing types
         vibrationTypes = new ArrayList<>(9);
         vibrationTypes.add(VibrationType.NOTIFICATION_ONE_TONE.name());
         vibrationTypes.add(VibrationType.NOTIFICATION_TWO_TONE.name());
@@ -61,40 +61,13 @@ public class EditTimerActivity extends ActionBarActivity {
         vibrationTypes.add(VibrationType.RAMP_DOWN.name());
     }
 
-    /**
-     * auto-generated, not modified
-     */
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_edit_timer, menu);
-        return true;
-    }
-
-    /**
-     * auto-generated, not modified
-     */
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        final int id = item.getItemId();
-
-        // noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (resultCode == TimerInputActivity.EDIT_TIMESTAMP_SUCCESS) {
             final String editedTimestamp = data.getStringExtra(TimerInputActivity.PUT_EXTRA_TIMESTAMP);
-            final int timerType = data.getIntExtra(TimerInputActivity.PUT_EXTRA_REQUEST, 0);
 
+            // Figure out if the user was just editing the delay timer or the interval timer
+            final int timerType = data.getIntExtra(TimerInputActivity.PUT_EXTRA_REQUEST, 0);
             if (timerType == TimerInputActivity.EDIT_INTERVAL_REQUEST) {
                 intervalText.setText(editedTimestamp);
             } else if (timerType == TimerInputActivity.EDIT_DELAY_REQUEST) {
@@ -138,19 +111,23 @@ public class EditTimerActivity extends ActionBarActivity {
      * Triggered when the "Test" button is clicked
      */
     protected void testVibration() {
-        // Grab the current spinner value
-        final Spinner vibrationSpinner = (Spinner) findViewById(R.id.vibrationPicker);
-        final String vibrationType = String.valueOf(vibrationSpinner.getSelectedItem());
+        if (!BandHelper.anyBandsConnected()) {
+            Toast.makeText(this, R.string.no_bands_found, Toast.LENGTH_LONG).show();
+        } else {
+            // Grab the current spinner value
+            final Spinner vibrationSpinner = (Spinner) findViewById(R.id.vibrationPicker);
+            final String vibrationType = String.valueOf(vibrationSpinner.getSelectedItem());
 
-        // Build a pending intent for the alarm manager
-        final Intent intent = new Intent(this, VibrationReceiver.class);
-        intent.putExtra(VibrationReceiver.TIMER_UUID_KEY, testVibrationString);
-        intent.putExtra(VibrationReceiver.VIBRATION_TYPE_KEY, vibrationType);
-        final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, vibrationType.hashCode(), intent, 0);
+            // Build a pending intent for the alarm manager
+            final Intent intent = new Intent(this, VibrationReceiver.class);
+            intent.putExtra(VibrationReceiver.TIMER_UUID_KEY, testVibrationString);
+            intent.putExtra(VibrationReceiver.VIBRATION_TYPE_KEY, vibrationType);
+            final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, vibrationType.hashCode(), intent, 0);
 
-        // Set the alarm manager with a trigger time in the past to trigger the service immediately.
-        final AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() - 1, pendingIntent);
+            // Set the alarm manager with a trigger time in the past to trigger the service immediately.
+            final AlarmManager alarmManager = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, SystemClock.elapsedRealtime() - 1, pendingIntent);
+        }
     }
 
     @Override
@@ -187,6 +164,7 @@ public class EditTimerActivity extends ActionBarActivity {
             delayText.setText(TimestampHelper.secondsToTimestamp(itemToEdit.delay));
             delayText.setOnClickListener(new TimestampClickListener(TimerInputActivity.EDIT_DELAY_REQUEST));
 
+            //Populate the vibration picker
             final Spinner vibrationSpinner = (Spinner) findViewById(R.id.vibrationPicker);
             final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, vibrationTypes);
             vibrationSpinner.setAdapter(adapter);
@@ -209,12 +187,19 @@ public class EditTimerActivity extends ActionBarActivity {
     public class TimestampClickListener implements Button.OnClickListener {
         private final int timestampToEdit;
 
+        /**
+         * Creates an instance
+         * 
+         * @param timestampToEdit
+         *            the number of seconds the previous timestamp represents, used to fill out the display that the
+         *            user will edit
+         */
         public TimestampClickListener(final int timestampToEdit) {
             this.timestampToEdit = timestampToEdit;
         }
 
         /**
-         * Will let the parent know that the user is done editing and wants to remove this item.
+         * Will start the {@link org.champgm.enhancedalarm.timerui.TimerInputActivity}
          *
          * @param view
          *            unused
@@ -261,7 +246,7 @@ public class EditTimerActivity extends ActionBarActivity {
 
     public class EditTimerVibrationTestButtonOnClickListener implements Button.OnClickListener {
         /**
-         * Call back to the parent to let it know that the user is done editing
+         * Will send the selected vibration to the band, one time, as a test
          *
          * @param view
          *            unused
