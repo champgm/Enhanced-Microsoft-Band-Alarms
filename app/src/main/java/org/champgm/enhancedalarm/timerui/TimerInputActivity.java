@@ -1,12 +1,8 @@
 package org.champgm.enhancedalarm.timerui;
 
-import java.util.LinkedList;
-
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -14,7 +10,9 @@ import android.widget.TextView;
 import org.champgm.enhancedalarm.R;
 import org.champgm.enhancedalarm.util.TimestampHelper;
 
-public class TimerInputActivity extends ActionBarActivity {
+import java.util.LinkedList;
+
+public class TimerInputActivity extends Activity {
 
     public static final String PUT_EXTRA_TIMESTAMP = "2c6fe89e-f1bd-4493-b10b-1406ffb639d5";
     public static final String PUT_EXTRA_REQUEST = "d06ec78a-3fff-4d49-a111-8eedb5902aa7";
@@ -26,42 +24,6 @@ public class TimerInputActivity extends ActionBarActivity {
     private final LinkedList<Integer> digits = new LinkedList<>();
     private final TextView[] timestampDisplay = new TextView[7];
     private int timerType;
-
-    /**
-     * Generated, untouched
-     *
-     * @param menu
-     *            ??
-     * @return ??
-     */
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_timer_input, menu);
-        return true;
-    }
-
-    /**
-     * Generated, untouched
-     *
-     * @param item
-     *            ??
-     * @return ??
-     */
-    @Override
-    public boolean onOptionsItemSelected(final MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        final int id = item.getItemId();
-
-        // noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {

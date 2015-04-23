@@ -55,6 +55,24 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionResult>
     }
 
     /**
+     * Attempts to send a vibration type one time and eats any exception that might occur
+     *
+     * @param bandClient
+     *            the client to use to send the vibration
+     * @param vibrationType
+     *            the type of vibration to send
+     * @return hopefully {@link com.microsoft.band.ConnectionResult#OK}
+     */
+    private static ConnectionResult sendVibrationOnce(final BandClient bandClient, final VibrationType vibrationType) {
+        try {
+            bandClient.getNotificationManager().vibrate(vibrationType).await();
+            return ConnectionResult.OK;
+        } catch (Exception e) {
+            return ConnectionResult.INTERNAL_ERROR;
+        }
+    }
+
+    /**
      * Attempts to connect to a band
      *
      * @param bandClients
@@ -64,14 +82,5 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionResult>
     @Override
     protected ConnectionResult doInBackground(final BandClient... bandClients) {
         return sendVibration(bandClients[0], vibrationType);
-    }
-
-    private static ConnectionResult sendVibrationOnce(final BandClient bandClient, final VibrationType vibrationType) {
-        try {
-            bandClient.getNotificationManager().vibrate(vibrationType).await();
-            return ConnectionResult.OK;
-        } catch (Exception e) {
-            return ConnectionResult.INTERNAL_ERROR;
-        }
     }
 }
