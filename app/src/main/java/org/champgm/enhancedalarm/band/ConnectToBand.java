@@ -26,7 +26,12 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
      * @return hopefully {@link ConnectionResult#OK}
      */
     public static ConnectionResult tryToConnect(final BandClient bandClient) {
+        if (bandClient == null) {
+            return ConnectionResult.INTERNAL_ERROR;
+        }
+
         connectOnce(bandClient);
+
         int connectionAttemptCount = 1;
         while (!bandClient.isConnected() && connectionAttemptCount < GIVE_UP) {
             if (bandClient.isConnected()) {
@@ -52,6 +57,10 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
      * @return hopefully {@link com.microsoft.band.ConnectionResult#OK}
      */
     private static ConnectionResult connectOnce(final BandClient bandClient) {
+        if (bandClient == null) {
+            return ConnectionResult.INTERNAL_ERROR.INTERNAL_ERROR;
+        }
+
         if (!bandClient.isConnected()) {
             try {
                 // Try to connect
@@ -72,12 +81,15 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
     /**
      * Asynchronous call to connect to the band.
      *
-     * @param clientParams
+     * @param bandClients
      *            a vararg of {@link com.microsoft.band.BandClient}s
      * @return hopefully {@link ConnectionResult#OK}
      */
     @Override
-    protected ConnectionResult doInBackground(final BandClient... clientParams) {
-        return tryToConnect(clientParams[0]);
+    protected ConnectionResult doInBackground(final BandClient... bandClients) {
+        if (bandClients != null && bandClients.length > 0) {
+            return tryToConnect(bandClients[0]);
+        }
+        return ConnectionResult.INTERNAL_ERROR;
     }
 }

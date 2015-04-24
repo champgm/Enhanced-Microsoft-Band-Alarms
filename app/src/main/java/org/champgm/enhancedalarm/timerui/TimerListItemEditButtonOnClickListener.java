@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 
-import com.google.common.base.Preconditions;
+import org.champgm.enhancedalarm.util.Checks;
 
 /**
  * The on-click listener for the edit button that is inside of each timer's view
@@ -33,14 +33,20 @@ public class TimerListItemEditButtonOnClickListener implements Button.OnClickLis
             final TimerAdapter timerAdapter,
             final Activity activity,
             final boolean addNew) {
-        this.timerAdapter = Preconditions.checkNotNull(timerAdapter, "timerAdapter may not be null.");
-        this.activity = Preconditions.checkNotNull(activity, "activity may not be null.");
+        if (Checks.isNull(timerAdapter) || Checks.isNull(activity)) {
+            throw new RuntimeException("Cannot create an edit button listener if activity or timer adapter are null");
+        }
+        this.timerAdapter = timerAdapter;
+        this.activity = activity;
         this.position = position;
         this.addNew = addNew;
     }
 
     @Override
     public void onClick(final View view) {
+        if (Checks.isNull(view)) {
+            return;
+        }
         // Basically, just put all of the input information into the Intent for the edit activity
         final Intent editIntent = new Intent(view.getContext(), EditTimerActivity.class);
         editIntent.putExtra(TimerListItem.PUT_EXTRA_ITEM_KEY, timerAdapter.getItem(position));

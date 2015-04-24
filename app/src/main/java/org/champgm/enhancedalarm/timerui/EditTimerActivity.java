@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -19,6 +20,7 @@ import com.microsoft.band.notification.VibrationType;
 import org.champgm.enhancedalarm.R;
 import org.champgm.enhancedalarm.band.BandHelper;
 import org.champgm.enhancedalarm.band.VibrationReceiver;
+import org.champgm.enhancedalarm.util.Checks;
 import org.champgm.enhancedalarm.util.TimestampHelper;
 
 import java.util.ArrayList;
@@ -64,14 +66,16 @@ public class EditTimerActivity extends Activity {
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         if (resultCode == TimerInputActivity.EDIT_TIMESTAMP_SUCCESS) {
-            final String editedTimestamp = data.getStringExtra(TimerInputActivity.PUT_EXTRA_TIMESTAMP);
+            if (data != null) {
+                final String editedTimestamp = data.getStringExtra(TimerInputActivity.PUT_EXTRA_TIMESTAMP);
 
-            // Figure out if the user was just editing the delay timer or the interval timer
-            final int timerType = data.getIntExtra(TimerInputActivity.PUT_EXTRA_REQUEST, 0);
-            if (timerType == TimerInputActivity.EDIT_INTERVAL_REQUEST) {
-                intervalText.setText(editedTimestamp);
-            } else if (timerType == TimerInputActivity.EDIT_DELAY_REQUEST) {
-                delayText.setText(editedTimestamp);
+                // Figure out if the user was just editing the delay timer or the interval timer
+                final int timerType = data.getIntExtra(TimerInputActivity.PUT_EXTRA_REQUEST, 0);
+                if (timerType == TimerInputActivity.EDIT_INTERVAL_REQUEST && intervalText != null) {
+                    intervalText.setText(editedTimestamp);
+                } else if (timerType == TimerInputActivity.EDIT_DELAY_REQUEST && delayText != null) {
+                    delayText.setText(editedTimestamp);
+                }
             }
         }
     }
@@ -80,19 +84,37 @@ public class EditTimerActivity extends Activity {
      * Triggered when the "Done" button is clicked
      */
     protected void doneEditing() {
-        final Integer delayInt = TimestampHelper.timeStampToSeconds(delayText.getText().toString());
-        final Integer intervalInt = TimestampHelper.timeStampToSeconds(intervalText.getText().toString());
+        Log.d("EDITING: ", String.valueOf(delayText != null));
+        Log.d("EDITING: ", String.valueOf(delayText.getText() != null));
+        Log.d("EDITING: ", String.valueOf(Checks.notEmpty(delayText.getText().toString())));
+        Log.d("EDITING: ", String.valueOf(intervalText != null));
+        Log.d("EDITING: ", String.valueOf(intervalText.getText() != null));
+        Log.d("EDITING: ", String.valueOf(Checks.notEmpty(intervalText.getText().toString())));
+        Log.d("EDITING: ", String.valueOf(TimestampHelper.validateTimestamp(delayText.getText().toString())));
+        Log.d("EDITING: ", String.valueOf(TimestampHelper.validateTimestamp(intervalText.getText().toString())));
 
-        final Spinner vibrationSpinner = (Spinner) findViewById(R.id.vibrationPicker);
-        final String vibrationType = String.valueOf(vibrationSpinner.getSelectedItem());
+        if (delayText != null &&
+                delayText.getText() != null &&
+                Checks.notEmpty(delayText.getText().toString()) &&
+                intervalText != null &&
+                intervalText.getText() != null &&
+                Checks.notEmpty(intervalText.getText().toString()) &&
+                TimestampHelper.validateTimestamp(delayText.getText().toString()) &&
+                TimestampHelper.validateTimestamp(intervalText.getText().toString())) {
+            final Integer delayInt = TimestampHelper.timeStampToSeconds(delayText.getText().toString());
+            final Integer intervalInt = TimestampHelper.timeStampToSeconds(intervalText.getText().toString());
 
-        // Build a new timer and place it into the intent, along with the position of the timer it is meant to
-        // replace
-        final TimerListItem resultTimer = new TimerListItem(intervalInt, delayInt, vibrationType);
-        final Intent resultIntent = new Intent();
-        resultIntent.putExtra(TimerListItem.PUT_EXTRA_ITEM_KEY, resultTimer);
-        resultIntent.putExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, originalPosition);
-        setResult(EDIT_RESULT_SUCCESS, resultIntent);
+            final Spinner vibrationSpinner = (Spinner) findViewById(R.id.vibrationPicker);
+            final String vibrationType = String.valueOf(vibrationSpinner.getSelectedItem());
+
+            // Build a new timer and place it into the intent, along with the position of the timer it is meant to
+            // replace
+            final TimerListItem resultTimer = new TimerListItem(intervalInt, delayInt, vibrationType);
+            final Intent resultIntent = new Intent();
+            resultIntent.putExtra(TimerListItem.PUT_EXTRA_ITEM_KEY, resultTimer);
+            resultIntent.putExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, originalPosition);
+            setResult(EDIT_RESULT_SUCCESS, resultIntent);
+        }
         finish();
     }
 
@@ -137,7 +159,7 @@ public class EditTimerActivity extends Activity {
 
         // Find out if we are adding a new timer, or editing an existing one
         final Intent intent = getIntent();
-        final boolean addNew = intent.getBooleanExtra(TimerAdapter.PUT_EXTRA_ADD_ITEM, true);
+        final boolean addNew = intent == null ? true : intent.getBooleanExtra(TimerAdapter.PUT_EXTRA_ADD_ITEM, true);
 
         final TimerListItem itemToEdit;
         if (addNew) {
@@ -149,7 +171,7 @@ public class EditTimerActivity extends Activity {
         }
 
         // Find out where it is in the existing List
-        originalPosition = intent.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
+        originalPosition = intent == null ? 999 : intent.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
         if (originalPosition == 999) {
             // Hopefully this won't happen
             Toast.makeText(this, "Unknown original position", Toast.LENGTH_LONG).show();
@@ -164,7 +186,7 @@ public class EditTimerActivity extends Activity {
             delayText.setText(TimestampHelper.secondsToTimestamp(itemToEdit.delay));
             delayText.setOnClickListener(new TimestampClickListener(TimerInputActivity.EDIT_DELAY_REQUEST));
 
-            //Populate the vibration picker
+            // Populate the vibration picker
             final Spinner vibrationSpinner = (Spinner) findViewById(R.id.vibrationPicker);
             final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, vibrationTypes);
             vibrationSpinner.setAdapter(adapter);

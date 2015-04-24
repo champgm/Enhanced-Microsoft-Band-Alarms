@@ -3,9 +3,7 @@ package org.champgm.enhancedalarm.band;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.widget.Toast;
 
-import com.google.common.base.Preconditions;
 import com.microsoft.band.BandClient;
 import com.microsoft.band.BandClientManager;
 import com.microsoft.band.BandDeviceInfo;
@@ -16,6 +14,7 @@ import com.microsoft.band.tiles.BandTile;
 import com.microsoft.band.tiles.BandTileManager;
 
 import org.champgm.enhancedalarm.R;
+import org.champgm.enhancedalarm.util.Toaster;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -51,12 +50,9 @@ public class BandHelper {
      *             if something takes too long
      */
     public static void addTile(final BandClient bandClient, final Activity activity) throws BandException, InterruptedException, TimeoutException {
-        Preconditions.checkNotNull(bandClient, "bandClient may not be null.");
-        Preconditions.checkNotNull(activity, "activity may not be null.");
-
         // Make sure we're connected
         connectToBand(bandClient);
-        if (bandClient.isConnected()) {
+        if (bandClient != null && bandClient.isConnected()) {
             // Instantiate the tile manager and get a list of existing tiles
             final BandTileManager tileManager = bandClient.getTileManager();
             final Collection<BandTile> tiles = bandClient.getTileManager().getTiles().await();
@@ -71,9 +67,11 @@ public class BandHelper {
             }
 
             // Add it if it's not there.
-            if (!foundTile) {
+            if (!foundTile && activity != null) {
                 tileManager.addTile(activity, getBandTile(activity));
             }
+        } else {
+            Toaster.send(activity, "Cannot add tile, band is not connected.");
         }
     }
 
@@ -85,7 +83,6 @@ public class BandHelper {
      */
     public static void connectToBand(final BandClient bandClient) {
         if (bandClient != null && !bandClient.isConnected()) {
-            Preconditions.checkNotNull(bandClient, "bandClient may not be null.");
             new ConnectToBand().execute(bandClient);
         }
     }
@@ -115,9 +112,8 @@ public class BandHelper {
     public static BandClient getBandClient(final Context context, final int position) {
         final BandDeviceInfo[] bands = getBands();
         if (position > bands.length - 1) {
-            Toast.makeText(context, "Unable to retrieve band at position '" + position +
-                    "'. Please check the list of connected bands in the settings menu.",
-                    Toast.LENGTH_LONG).show();
+            Toaster.send(context, "Unable to retrieve band at position '" + position +
+                    "'. Please check the list of connected bands in the settings menu.");
             return null;
         }
         return BandClientManager.getInstance().create(context, bands[position]);
@@ -150,18 +146,20 @@ public class BandHelper {
      * @return the tile object
      */
     private static BandTile getBandTile(final Context context) {
-        Preconditions.checkNotNull(context, "context may not be null.");
+        if (context != null) {
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled = false;
+            final BandIcon tileIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(context.getResources(), R.raw.tile, options));
+            final BandIcon badgeIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(context.getResources(), R.raw.badge, options));
 
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inScaled = false;
-        final BandIcon tileIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(context.getResources(), R.raw.tile, options));
-        final BandIcon badgeIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(context.getResources(), R.raw.badge, options));
+            final BandTile.Builder bandTileBuilder = new BandTile.Builder(TILE_UUID, TILE_NAME, tileIcon)
+                    .setTileSmallIcon(badgeIcon);
 
-        final BandTile.Builder bandTileBuilder = new BandTile.Builder(TILE_UUID, TILE_NAME, tileIcon)
-                .setTileSmallIcon(badgeIcon);
-
-        // Return it
-        return bandTileBuilder.build();
+            // Return it
+            return bandTileBuilder.build();
+        } else {
+            return null;
+        }
     }
 
     /**

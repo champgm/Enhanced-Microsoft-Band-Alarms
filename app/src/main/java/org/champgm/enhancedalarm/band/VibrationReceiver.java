@@ -4,6 +4,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import org.champgm.enhancedalarm.util.Toaster;
+
 /**
  * A {@link android.content.BroadcastReceiver} which will vibrate the Microsoft Band
  */
@@ -29,6 +31,12 @@ public class VibrationReceiver extends BroadcastReceiver {
      */
     @Override
     public void onReceive(final Context context, final Intent intent) {
+        if (context == null) {
+            return;
+        } else if (intent == null) {
+            Toaster.send(context, "VibrationReceiver received null Intent. Could not vibrate band.");
+            return;
+        }
         // Create an intent, put the necessary timer UID and vibration type on it, and use it to start the BandService
         final Intent bandServiceIntent = new Intent(context, BandService.class);
         bandServiceIntent.putExtra(TIMER_UUID_KEY, intent.getStringExtra(TIMER_UUID_KEY));

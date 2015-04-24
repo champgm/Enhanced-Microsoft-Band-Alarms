@@ -7,12 +7,12 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
-import android.widget.Toast;
 
-import com.google.common.base.Preconditions;
 import com.microsoft.band.BandDeviceInfo;
 
 import org.champgm.enhancedalarm.band.BandHelper;
+import org.champgm.enhancedalarm.util.Checks;
+import org.champgm.enhancedalarm.util.Toaster;
 
 import java.util.ArrayList;
 
@@ -37,21 +37,23 @@ public class SettingsActivity extends Activity {
         setContentView(R.layout.activity_settings);
 
         // Show a toast if no bands are connected. This will explain why the spinner is empty
+        final Spinner bandSpinner;
         if (!BandHelper.anyBandsConnected()) {
-            Toast.makeText(this, R.string.no_bands_found, Toast.LENGTH_LONG).show();
-        }
+            Toaster.send(this, R.string.no_bands_found);
+            bandSpinner = null;
+        } else {
+            // Get the list of connected bands and fill the spinner's contents
+            spinnerContents = new ArrayList<>(2);
+            final BandDeviceInfo[] connectedBands = BandHelper.getBands();
+            for (final BandDeviceInfo connectedBand : connectedBands) {
+                spinnerContents.add(connectedBand.getName() + " : " + connectedBand.getMacAddress());
+            }
 
-        // Get the list of connected bands and fill the spinner's contents
-        spinnerContents = new ArrayList<>(2);
-        final BandDeviceInfo[] connectedBands = BandHelper.getBands();
-        for (final BandDeviceInfo connectedBand : connectedBands) {
-            spinnerContents.add(connectedBand.getName() + " : " + connectedBand.getMacAddress());
+            // Assign the spinner adapter to the spinner layout thing
+            bandSpinner = (Spinner) findViewById(R.id.bandPicker);
+            final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, spinnerContents);
+            bandSpinner.setAdapter(adapter);
         }
-
-        // Assign the spinner adapter to the spinner layout thing
-        final Spinner bandSpinner = (Spinner) findViewById(R.id.bandPicker);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, spinnerContents);
-        bandSpinner.setAdapter(adapter);
 
         // Button listeners
         final Button doneButton = (Button) findViewById(R.id.done_button);
@@ -84,7 +86,7 @@ public class SettingsActivity extends Activity {
          *            the spinner from which to retrieve the selected band
          */
         public SettingsDoneButtonOnClickListener(final Spinner bandSpinner) {
-            this.bandSpinner = Preconditions.checkNotNull(bandSpinner, "bandSpinner may not be null.");
+            this.bandSpinner = bandSpinner;
         }
 
         /**
@@ -95,10 +97,12 @@ public class SettingsActivity extends Activity {
          */
         @Override
         public void onClick(final View view) {
-            final int selectedIndex = spinnerContents.indexOf(String.valueOf(bandSpinner.getSelectedItem()));
-            final SharedPreferences.Editor sharedPreferencesEditor = getSharedPreferences(SettingsActivity.PREF_FILE_NAME, MODE_PRIVATE).edit();
-            sharedPreferencesEditor.putInt(SELECTED_BAND, selectedIndex);
-            sharedPreferencesEditor.commit();
+            if (Checks.notNull(bandSpinner)) {
+                final int selectedIndex = spinnerContents.indexOf(String.valueOf(bandSpinner.getSelectedItem()));
+                final SharedPreferences.Editor sharedPreferencesEditor = getSharedPreferences(SettingsActivity.PREF_FILE_NAME, MODE_PRIVATE).edit();
+                sharedPreferencesEditor.putInt(SELECTED_BAND, selectedIndex);
+                sharedPreferencesEditor.commit();
+            }
             finish();
         }
     }

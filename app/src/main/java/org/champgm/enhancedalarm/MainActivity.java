@@ -4,15 +4,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.champgm.enhancedalarm.timerui.EditTimerActivity;
 import org.champgm.enhancedalarm.timerui.TimerAdapter;
 import org.champgm.enhancedalarm.timerui.TimerListItem;
 import org.champgm.enhancedalarm.timerui.TimerListItemOnClickListener;
+import org.champgm.enhancedalarm.util.Checks;
+import org.champgm.enhancedalarm.util.Toaster;
 
 import java.util.ArrayList;
 
@@ -68,32 +70,37 @@ public class MainActivity extends ActionBarActivity {
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         int resultPosition;
 
-        switch (requestCode) {
+        switch (resultCode) {
             case EditTimerActivity.EDIT_RESULT_SUCCESS:
-                // The result of editing was actually an edited timer
-                // Grab the resultant timer and its position in the TimerAdapter's ArrayList
-                final TimerListItem resultTimer = data.getParcelableExtra(TimerListItem.PUT_EXTRA_ITEM_KEY);
-                resultPosition = data.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
+                if (Checks.notNull(data)) {
+                    // The result of editing was actually an edited timer
+                    // Grab the resultant timer and its position in the TimerAdapter's ArrayList
+                    final TimerListItem resultTimer = data.getParcelableExtra(TimerListItem.PUT_EXTRA_ITEM_KEY);
+                    resultPosition = data.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
 
-                // Hopefully this never happens...
-                if (resultPosition == 999) {
-                    Toast.makeText(this, "Unknown position", Toast.LENGTH_LONG).show();
-                } else {
-                    // Replace the edited timer with the new one
-                    timerAdapter.replaceItem(resultPosition, resultTimer);
+                    // Hopefully this never happens...
+                    if (resultPosition == 999) {
+                        Toaster.send(this, "Unknown position");
+                    } else {
+                        // Replace the edited timer with the new one
+                        timerAdapter.replaceItem(resultPosition, resultTimer);
+                    }
                 }
                 break;
             case EditTimerActivity.DELETE_RESULT_SUCCESS:
-                // The result of editing was a removed timer.
-                // Grab the position and remove the item at that position.
-                resultPosition = data.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
-                if (resultPosition == 999) {
-                    Toast.makeText(this, "Unknown position", Toast.LENGTH_LONG).show();
-                } else {
-                    timerAdapter.removeItem(resultPosition);
+                if (Checks.notNull(data)) {
+                    // The result of editing was a removed timer.
+                    // Grab the position and remove the item at that position.
+                    resultPosition = data.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
+                    if (resultPosition == 999) {
+                        Toaster.send(this, "Unknown position");
+                    } else {
+                        timerAdapter.removeItem(resultPosition);
+                    }
                 }
                 break;
             default:
+                Log.d("MAIN", "Unrecognized code: " + requestCode);
                 break;
         }
     }
