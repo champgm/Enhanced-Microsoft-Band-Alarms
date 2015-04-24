@@ -8,7 +8,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.champgm.enhancedalarm.R;
+import org.champgm.enhancedalarm.util.Checks;
 import org.champgm.enhancedalarm.util.TimestampHelper;
+import org.champgm.enhancedalarm.util.Toaster;
 
 import java.util.LinkedList;
 
@@ -32,7 +34,8 @@ public class TimerInputActivity extends Activity {
 
         // Get the type of timer we will be editing (this isn't really used, just put back into the result later so that
         // the receiving class will know which field to update)
-        timerType = getIntent().getIntExtra(PUT_EXTRA_REQUEST, 0);
+        final Intent intent = getIntent();
+        timerType = intent == null ? 0 : intent.getIntExtra(PUT_EXTRA_REQUEST, 0);
 
         // Set the control button listeners
         findViewById(R.id.backspace).setOnClickListener(new BackspaceButtonListener());
@@ -61,7 +64,11 @@ public class TimerInputActivity extends Activity {
         timestampDisplay[6] = (TextView) findViewById(R.id.second_ones);
 
         // Get the timestamp from the intent that started this activity and display it.
-        final String timestamp = TimestampHelper.simplifyTimeStamp(getIntent().getStringExtra(PUT_EXTRA_TIMESTAMP));
+        final String possibleTimestamp = intent == null ? "" : intent.getStringExtra(PUT_EXTRA_TIMESTAMP);
+        if (Checks.isEmpty(possibleTimestamp) || !TimestampHelper.validateTimestamp(possibleTimestamp)) {
+            Toaster.send(this, "Invalid timestamp");
+        }
+        final String timestamp = TimestampHelper.simplifyTimeStamp(possibleTimestamp);
         pushTimestamp(timestamp);
     }
 
@@ -72,24 +79,28 @@ public class TimerInputActivity extends Activity {
      *            the timestamp to fill into the fields
      */
     private void pushTimestamp(final String timestamp) {
-        // Clear the old stuff
-        digits.clear();
+        if (TimestampHelper.validateTimestamp(timestamp)) {
+            // Clear the old stuff
+            digits.clear();
 
-        // Starting at the seconds place, convert each non-colon character into an integer and push it into the list
-        for (int i = timestamp.length() - 1; i > -1; i--) {
-            final char character = timestamp.charAt(i);
-            if (character != ':') {
-                digits.push(Character.getNumericValue(character));
+            // Starting at the seconds place, convert each non-colon character into an integer and push it into the list
+            for (int i = timestamp.length() - 1; i > -1; i--) {
+                final char character = timestamp.charAt(i);
+                if (character != ':') {
+                    digits.push(Character.getNumericValue(character));
+                }
             }
-        }
 
-        // If the string doesn't have an hour's hundredth place, stick an extra zero in there
-        if (timestamp.length() != 9) {
-            digits.push(0);
-        }
+            // If the string doesn't have an hour's hundredth place, stick an extra zero in there
+            if (timestamp.length() != 9) {
+                digits.push(0);
+            }
 
-        // update the timestamp display
-        updateTimestampDisplay();
+            // update the timestamp display
+            updateTimestampDisplay();
+        } else {
+            Toaster.send(this, "Invalid timestamp");
+        }
     }
 
     /**
@@ -99,14 +110,16 @@ public class TimerInputActivity extends Activity {
      *            the value to push
      */
     private void pushOne(final int value) {
-        // If the display is not already full...
-        if (digits.get(0) == 0 && digits.get(1) == 0) {
-            // Pop out the leading zero
-            digits.pop();
-            // Add a new number into the seconds place
-            digits.addLast(value);
-            // Update the display
-            updateTimestampDisplay();
+        if (Checks.notNull(digits) && !digits.isEmpty()) {
+            // If the display is not already full...
+            if (digits.get(0) == 0 && digits.get(1) == 0) {
+                // Pop out the leading zero
+                digits.pop();
+                // Add a new number into the seconds place
+                digits.addLast(value);
+                // Update the display
+                updateTimestampDisplay();
+            }
         }
     }
 
@@ -114,17 +127,23 @@ public class TimerInputActivity extends Activity {
      * Parse the digits and display them
      */
     private void updateTimestampDisplay() {
-        // If there is a value in the hour's hundreds place, set the display
-        if (digits.get(0) != 0) {
-            timestampDisplay[0].setText(String.valueOf(digits.get(0)));
-        } else {
-            // Otherwise, blank it out so it does not display
-            timestampDisplay[0].setText("");
+        if (Checks.notNull(timestampDisplay[0]) &&
+                Checks.notNull(digits) &&
+                !digits.isEmpty()) {
+            // If there is a value in the hour's hundreds place, set the display
+            if (digits.get(0) != 0) {
+                timestampDisplay[0].setText(String.valueOf(digits.get(0)));
+            } else {
+                // Otherwise, blank it out so it does not display
+                timestampDisplay[0].setText("");
+            }
         }
 
         // Starting at the hour's tens place, fill in each available digit
         for (int i = timestampDisplay.length - 1; i > 0; i--) {
-            timestampDisplay[i].setText(String.valueOf(digits.get(i)));
+            if (Checks.notNull(timestampDisplay[i])) {
+                timestampDisplay[i].setText(String.valueOf(digits.get(i)));
+            }
         }
     }
 
@@ -132,12 +151,16 @@ public class TimerInputActivity extends Activity {
 
         @Override
         public void onClick(final View v) {
-            // Remove the item in the seconds place
-            digits.removeLast();
-            // Push a zero into the hour's hundreds place
-            digits.push(0);
-            // Update the display
-            updateTimestampDisplay();
+            if (Checks.notNull(digits)) {
+                if (!digits.isEmpty()) {
+                    // Remove the item in the seconds place
+                    digits.removeLast();
+                }
+                // Push a zero into the hour's hundreds place
+                digits.push(0);
+                // Update the display
+                updateTimestampDisplay();
+            }
         }
     }
 
@@ -193,10 +216,12 @@ public class TimerInputActivity extends Activity {
          */
         @Override
         public void onClick(final View view) {
-            final Intent resultIntent = new Intent();
-            resultIntent.putExtra(PUT_EXTRA_REQUEST, timerType);
-            resultIntent.putExtra(PUT_EXTRA_TIMESTAMP, TimestampHelper.linkedListToTimestamp(digits));
-            setResult(EDIT_TIMESTAMP_SUCCESS, resultIntent);
+            if (timerType > 0) {
+                final Intent resultIntent = new Intent();
+                resultIntent.putExtra(PUT_EXTRA_REQUEST, timerType);
+                resultIntent.putExtra(PUT_EXTRA_TIMESTAMP, TimestampHelper.linkedListToTimestamp(digits));
+                setResult(EDIT_TIMESTAMP_SUCCESS, resultIntent);
+            }
             finish();
         }
     }

@@ -1,7 +1,5 @@
 package org.champgm.enhancedalarm.timerui;
 
-import java.util.ArrayList;
-
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
@@ -12,11 +10,14 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.champgm.enhancedalarm.R;
-import org.champgm.enhancedalarm.util.TimestampHelper;
-
-import com.google.common.base.Preconditions;
 import com.microsoft.band.notification.VibrationType;
+
+import org.champgm.enhancedalarm.R;
+import org.champgm.enhancedalarm.util.Checks;
+import org.champgm.enhancedalarm.util.TimestampHelper;
+import org.champgm.enhancedalarm.util.Toaster;
+
+import java.util.ArrayList;
 
 /**
  * This is the custom adapter for the ListView in {@link org.champgm.enhancedalarm.MainActivity}
@@ -47,12 +48,24 @@ public class TimerAdapter extends BaseAdapter {
      *            a reference back to the {@link org.champgm.enhancedalarm.MainActivity} that this adapter belongs to
      */
     public TimerAdapter(final Activity mainActivity, final ArrayList<TimerListItem> contents) {
-        this.mainActivity = Preconditions.checkNotNull(mainActivity, "mainActivity may not be null.");
-        this.contents = Preconditions.checkNotNull(contents, "contents may not be null.");
-        ensureAddItem();
-
-        Log.d("TimerAdapter", "creating new timer adapter");
+        if (Checks.isNull(mainActivity)) {
+            throw new RuntimeException("The activity that starts a TimerAdapter cannot be null. I do not see any other way around this.");
+        }
+        this.mainActivity = mainActivity;
         this.layoutInflater = (LayoutInflater) mainActivity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        if (contents == null || contents.isEmpty()) {
+            this.contents = newList();
+        } else {
+            this.contents = contents;
+        }
+        ensureAddItem();
+    }
+
+    private static ArrayList<TimerListItem> newList() {
+        final ArrayList<TimerListItem> timerListItems = new ArrayList<>();
+        timerListItems.add(new TimerListItem(30, 5, VibrationType.THREE_TONE_HIGH.name()));
+        return timerListItems;
     }
 
     /**
@@ -72,7 +85,10 @@ public class TimerAdapter extends BaseAdapter {
      */
     @Override
     public TimerListItem getItem(final int position) {
-        return contents.get(position);
+        if (Checks.notNull(contents) && position <= contents.size() - 1 && position >= 0) {
+            return contents.get(position);
+        }
+        return null;
     }
 
     /**
@@ -100,40 +116,49 @@ public class TimerAdapter extends BaseAdapter {
      */
     @Override
     public View getView(final int position, final View convertView, final ViewGroup parent) {
-        // Grab the list item corresponding to the view that should be created
-        final TimerListItem timerListItem = contents.get(position);
-        // If this is the special add button, create that, set the button listener, and return it
-        if (timerListItem.uuid == TimerListItem.ADD_ITEM_UUID) {
-            final View addView = layoutInflater.inflate(R.layout.timer_list_add, parent, false);
-            final Button addButton = (Button) addView.findViewById(R.id.add_button);
-            addButton.setOnClickListener(new TimerListItemEditButtonOnClickListener(position, this, mainActivity, true));
-            return addView;
-        } else {
-            // Create a new view
-            final View timerView = layoutInflater.inflate(R.layout.timer_list_item, parent, false);
-
-            // Grab references to all text fields
-            final TextView intervalText = (TextView) timerView.findViewById(R.id.interval);
-            final TextView delayText = (TextView) timerView.findViewById(R.id.delay);
-
-            // Fill the text fields in
-            intervalText.setText(TimestampHelper.secondsToTimestamp(timerListItem.interval));
-            delayText.setText(TimestampHelper.secondsToTimestamp(timerListItem.delay));
-
-            // Set the listener for the edit button
-            final Button editButton = (Button) timerView.findViewById(R.id.edit_button);
-            editButton.setOnClickListener(new TimerListItemEditButtonOnClickListener(position, this, mainActivity, false));
-
-            // Set the right color
-            if (timerListItem.started) {
-                // resources MUST be called on main activity view.getResources WILL throw an NPE
-                timerView.setBackgroundColor(mainActivity.getResources().getColor(R.color.activated_green));
+        if (Checks.notNull(parent) &&
+                Checks.notNull(mainActivity) &&
+                Checks.notNull(layoutInflater) &&
+                position >= 0 &&
+                position <= contents.size() - 1) {
+            // Grab the list item corresponding to the view that should be created
+            final TimerListItem timerListItem = contents.get(position);
+            // If this is the special add button, create that, set the button listener, and return it
+            if (timerListItem.uuid == TimerListItem.ADD_ITEM_UUID) {
+                final View addView = layoutInflater.inflate(R.layout.timer_list_add, parent, false);
+                final Button addButton = (Button) addView.findViewById(R.id.add_button);
+                addButton.setOnClickListener(new TimerListItemEditButtonOnClickListener(position, this, mainActivity, true));
+                return addView;
             } else {
-                timerView.setBackgroundColor(mainActivity.getResources().getColor(R.color.invisible));
-            }
+                // Create a new view
+                final View timerView = layoutInflater.inflate(R.layout.timer_list_item, parent, false);
 
-            return timerView;
+                // Grab references to all text fields
+                final TextView intervalText = (TextView) timerView.findViewById(R.id.interval);
+                final TextView delayText = (TextView) timerView.findViewById(R.id.delay);
+
+                // Fill the text fields in
+                intervalText.setText(TimestampHelper.secondsToTimestamp(timerListItem.interval));
+                delayText.setText(TimestampHelper.secondsToTimestamp(timerListItem.delay));
+
+                // Set the listener for the edit button
+                final Button editButton = (Button) timerView.findViewById(R.id.edit_button);
+                editButton.setOnClickListener(new TimerListItemEditButtonOnClickListener(position, this, mainActivity, false));
+
+                // Set the right color
+                if (timerListItem.started) {
+                    // resources MUST be called on main activity view.getResources WILL throw an NPE
+                    timerView.setBackgroundColor(mainActivity.getResources().getColor(R.color.activated_green));
+                } else {
+                    timerView.setBackgroundColor(mainActivity.getResources().getColor(R.color.invisible));
+                }
+
+                return timerView;
+            }
+        } else {
+            Toaster.send(convertView.getContext(), "Could not retrieve view for list item in position: " + position);
         }
+        return convertView;
     }
 
     /**
@@ -143,7 +168,11 @@ public class TimerAdapter extends BaseAdapter {
      *            location of the item to remove
      */
     public void removeItem(final int position) {
-        contents.remove(position);
+        if (Checks.notNull(contents) && position <= contents.size() - 1 && position >= 0) {
+            contents.remove(position);
+        } else {
+            Log.d("TimerAdapter", "Could not replace item. Contents null or position out of bounds.");
+        }
 
         // Don't forget to update the list and views!
         updateData();
@@ -158,8 +187,12 @@ public class TimerAdapter extends BaseAdapter {
      *            the new item
      */
     public void replaceItem(final int position, final TimerListItem newTimerListItem) {
-        contents.remove(position);
-        contents.add(newTimerListItem);
+        if (Checks.notNull(contents) && position <= contents.size() - 1 && position >= 0) {
+            contents.remove(position);
+            contents.add(newTimerListItem);
+        } else {
+            Log.d("TimerAdapter", "Could not replace item. Contents null or position out of bounds.");
+        }
 
         // Don't forget to update the list and views!
         updateData();
@@ -172,12 +205,6 @@ public class TimerAdapter extends BaseAdapter {
      */
     public ArrayList<TimerListItem> getContents() {
         return contents;
-    }
-
-    private static ArrayList<TimerListItem> newList() {
-        final ArrayList<TimerListItem> timerListItems = new ArrayList<>();
-        timerListItems.add(new TimerListItem(30, 5, VibrationType.THREE_TONE_HIGH.name()));
-        return timerListItems;
     }
 
     /**
@@ -197,7 +224,9 @@ public class TimerAdapter extends BaseAdapter {
      * This removes the add-item menu option and re-adds it to make sure that it is at the bottom of the list
      */
     private void ensureAddItem() {
-        contents.remove(TimerListItem.ADD_ITEM);
-        contents.add(TimerListItem.ADD_ITEM);
+        if (Checks.notNull(contents)) {
+            contents.remove(TimerListItem.ADD_ITEM);
+            contents.add(TimerListItem.ADD_ITEM);
+        }
     }
 }

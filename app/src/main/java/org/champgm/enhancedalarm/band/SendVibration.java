@@ -3,7 +3,6 @@ package org.champgm.enhancedalarm.band;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.google.common.base.Preconditions;
 import com.microsoft.band.BandClient;
 import com.microsoft.band.ConnectionResult;
 import com.microsoft.band.notification.VibrationType;
@@ -25,7 +24,7 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionResult>
      *            the {@link com.microsoft.band.notification.VibrationType} to send to the band
      */
     public SendVibration(final VibrationType vibrationType) {
-        this.vibrationType = Preconditions.checkNotNull(vibrationType, "vibrationType may not be null.");
+        this.vibrationType = vibrationType;
     }
 
     /**
@@ -36,22 +35,25 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionResult>
      * @return the {@link com.microsoft.band.ConnectionResult}
      */
     public static ConnectionResult sendVibration(final BandClient bandClient, final VibrationType vibrationType) {
-        int connectionAttemptCount = 1;
-        ConnectionResult connectionResult = sendVibrationOnce(bandClient, vibrationType);
-        while (ConnectionResult.OK != connectionResult && connectionAttemptCount < GIVE_UP) {
-            connectionResult = sendVibrationOnce(bandClient, vibrationType);
-            if (ConnectionResult.OK == connectionResult) {
-                return ConnectionResult.OK;
-            } else {
-                connectionAttemptCount++;
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    Log.i("ConnectToBand", "Problem while delaying: \n" + e.toString());
+        if (bandClient != null && vibrationType != null) {
+            int vibrationAttemptCount = 1;
+            ConnectionResult connectionResult = sendVibrationOnce(bandClient, vibrationType);
+            while (ConnectionResult.OK != connectionResult && vibrationAttemptCount < GIVE_UP) {
+                connectionResult = sendVibrationOnce(bandClient, vibrationType);
+                if (ConnectionResult.OK == connectionResult) {
+                    return ConnectionResult.OK;
+                } else {
+                    vibrationAttemptCount++;
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException e) {
+                        Log.i("ConnectToBand", "Problem while delaying: \n" + e.toString());
+                    }
                 }
             }
+            return ConnectionResult.TIMEOUT;
         }
-        return ConnectionResult.TIMEOUT;
+        return ConnectionResult.INTERNAL_ERROR;
     }
 
     /**
@@ -64,12 +66,19 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionResult>
      * @return hopefully {@link com.microsoft.band.ConnectionResult#OK}
      */
     private static ConnectionResult sendVibrationOnce(final BandClient bandClient, final VibrationType vibrationType) {
-        try {
-            bandClient.getNotificationManager().vibrate(vibrationType).await();
-            return ConnectionResult.OK;
-        } catch (Exception e) {
-            return ConnectionResult.INTERNAL_ERROR;
+        if (bandClient != null && vibrationType != null) {
+            try {
+                if (!bandClient.isConnected()) {
+                    BandHelper.connectToBand(bandClient);
+                }
+
+                bandClient.getNotificationManager().vibrate(vibrationType).await();
+                return ConnectionResult.OK;
+            } catch (Exception e) {
+                return ConnectionResult.INTERNAL_ERROR;
+            }
         }
+        return ConnectionResult.INTERNAL_ERROR;
     }
 
     /**
@@ -81,6 +90,9 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionResult>
      */
     @Override
     protected ConnectionResult doInBackground(final BandClient... bandClients) {
-        return sendVibration(bandClients[0], vibrationType);
+        if (bandClients != null && bandClients.length > 0) {
+            return sendVibration(bandClients[0], vibrationType);
+        }
+        return ConnectionResult.INTERNAL_ERROR;
     }
 }
