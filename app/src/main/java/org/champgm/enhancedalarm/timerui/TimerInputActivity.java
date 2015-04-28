@@ -3,6 +3,8 @@ package org.champgm.enhancedalarm.timerui;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -32,11 +34,6 @@ public class TimerInputActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_timer_input);
 
-        // Get the type of timer we will be editing (this isn't really used, just put back into the result later so that
-        // the receiving class will know which field to update)
-        final Intent intent = getIntent();
-        timerType = intent == null ? 0 : intent.getIntExtra(PUT_EXTRA_REQUEST, 0);
-
         // Set the control button listeners
         findViewById(R.id.backspace).setOnClickListener(new BackspaceButtonListener());
         findViewById(R.id.control_done).setOnClickListener(new DoneButtonListener());
@@ -62,6 +59,11 @@ public class TimerInputActivity extends Activity {
         timestampDisplay[4] = (TextView) findViewById(R.id.minute_ones);
         timestampDisplay[5] = (TextView) findViewById(R.id.second_tens);
         timestampDisplay[6] = (TextView) findViewById(R.id.second_ones);
+
+        // Get the type of timer we will be editing (this isn't really used, just put back into the result later so that
+        // the receiving class will know which field to update)
+        final Intent intent = getIntent();
+        timerType = intent == null ? 0 : intent.getIntExtra(PUT_EXTRA_REQUEST, 0);
 
         // Get the timestamp from the intent that started this activity and display it.
         final String possibleTimestamp = intent == null ? "" : intent.getStringExtra(PUT_EXTRA_TIMESTAMP);
@@ -100,6 +102,20 @@ public class TimerInputActivity extends Activity {
             updateTimestampDisplay();
         } else {
             Toaster.send(this, "Invalid timestamp");
+        }
+    }
+
+    @Override
+    protected final void onSaveInstanceState(@NonNull final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString(PUT_EXTRA_TIMESTAMP, TimestampHelper.linkedListToTimestamp(digits));
+    }
+
+    @Override
+    public final void onRestoreInstanceState(final Bundle savedInstanceState, final PersistableBundle persistentState) {
+        super.onRestoreInstanceState(savedInstanceState, persistentState);
+        if (savedInstanceState != null && savedInstanceState.containsKey(PUT_EXTRA_TIMESTAMP)) {
+            pushTimestamp(savedInstanceState.getString(PUT_EXTRA_TIMESTAMP));
         }
     }
 

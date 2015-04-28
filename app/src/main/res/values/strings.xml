@@ -44,4 +44,5 @@
     <string name="select_band">Select a band</string>
 
     <string name="no_bands_found">No bands found… Check if any are connected?</string>
+    <string name="backspaceDescription">backspace</string>
 </resources>

@@ -43,4 +43,5 @@
     <string name="title_activity_settings">설정</string>
     <string name="title_activity_timer_input">타이머 입력</string>
     <string name="no_bands_found">어떤 BAND가 없습니다. 하나를 연결합니다.</string>
+    <string name="backspaceDescription">백 스페이스 키</string>
 </resources>

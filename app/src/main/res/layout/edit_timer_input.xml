@@ -1,204 +1,207 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center">
 
-  <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:id="@+id/time"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_above="@+id/keypad"
-                  android:layout_centerHorizontal="true"
-                  android:layout_gravity="center"
-                  android:layout_marginBottom="30sp"
-                  android:columnCount="10"
-                  android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/hour_hundreds"
-        android:text=""
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="@dimen/timer_input_timestamp_number_size"/>
+        android:layout_gravity="center">
 
-    <TextView
-        android:id="@+id/hour_tens"
-        android:text="@string/zero"
-        android:layout_toEndOf="@id/hour_hundreds"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="@dimen/timer_input_timestamp_number_size"/>
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/keypad"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_marginBottom="30sp"
+            android:columnCount="10"
+            android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/hour_ones"
-        android:text="@string/zero"
-        android:layout_toEndOf="@id/hour_tens"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="@dimen/timer_input_timestamp_number_size"/>
+            <TextView
+                android:id="@+id/hour_hundreds"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="@dimen/timer_input_timestamp_number_size" />
 
-    <TextView
-        android:id="@+id/hour_symbol"
-        android:text="@string/hour_symbol"
-        android:layout_marginEnd="5dp"
-        android:layout_toEndOf="@id/hour_ones"
-        android:layout_alignBottom="@id/hour_ones"
-        android:layout_marginBottom="5dp"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="@dimen/timer_input_timestamp_symbol_size"/>
+            <TextView
+                android:id="@+id/hour_tens"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/hour_hundreds"
+                android:text="@string/zero"
+                android:textSize="@dimen/timer_input_timestamp_number_size" />
 
-    <TextView
-        android:id="@+id/minute_tens"
-        android:text="@string/zero"
-        android:layout_toEndOf="@id/hour_symbol"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="@dimen/timer_input_timestamp_number_size"/>
+            <TextView
+                android:id="@+id/hour_ones"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/hour_tens"
+                android:text="@string/zero"
+                android:textSize="@dimen/timer_input_timestamp_number_size" />
 
-    <TextView
-        android:id="@+id/minute_ones"
-        android:text="@string/zero"
-        android:layout_toEndOf="@id/minute_tens"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="@dimen/timer_input_timestamp_number_size"/>
+            <TextView
+                android:id="@+id/hour_symbol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/hour_ones"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_toEndOf="@id/hour_ones"
+                android:text="@string/hour_symbol"
+                android:textSize="@dimen/timer_input_timestamp_symbol_size" />
 
-    <TextView
-        android:id="@+id/minute_symbol"
-        android:text="@string/minute_symbol"
-        android:layout_alignBottom="@id/hour_ones"
-        android:layout_marginBottom="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_toEndOf="@id/minute_ones"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="@dimen/timer_input_timestamp_symbol_size"/>
+            <TextView
+                android:id="@+id/minute_tens"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/hour_symbol"
+                android:text="@string/zero"
+                android:textSize="@dimen/timer_input_timestamp_number_size" />
 
-    <TextView
-        android:id="@+id/second_tens"
-        android:text="@string/zero"
-        android:layout_toEndOf="@id/minute_symbol"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="@dimen/timer_input_timestamp_number_size"/>
+            <TextView
+                android:id="@+id/minute_ones"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/minute_tens"
+                android:text="@string/zero"
+                android:textSize="@dimen/timer_input_timestamp_number_size" />
 
-    <TextView
-        android:id="@+id/second_ones"
-        android:text="@string/zero"
-        android:layout_toEndOf="@id/second_tens"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="@dimen/timer_input_timestamp_number_size"/>
+            <TextView
+                android:id="@+id/minute_symbol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/hour_ones"
+                android:layout_marginBottom="5dp"
+                android:layout_marginEnd="5dp"
+                android:layout_toEndOf="@id/minute_ones"
+                android:text="@string/minute_symbol"
+                android:textSize="@dimen/timer_input_timestamp_symbol_size" />
 
-    <TextView
-        android:id="@+id/second_symbol"
-        android:text="@string/second_symbol"
-        android:layout_alignBottom="@id/hour_ones"
-        android:layout_marginBottom="5dp"
-        android:layout_toEndOf="@id/second_ones"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="@dimen/timer_input_timestamp_symbol_size"/>
+            <TextView
+                android:id="@+id/second_tens"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/minute_symbol"
+                android:text="@string/zero"
+                android:textSize="@dimen/timer_input_timestamp_number_size" />
 
-    <ImageButton
-        android:id="@+id/backspace"
-        android:layout_toEndOf="@id/second_symbol"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_input_delete"
-        android:layout_marginStart="10dp"
-        />
+            <TextView
+                android:id="@+id/second_ones"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toEndOf="@id/second_tens"
+                android:text="@string/zero"
+                android:textSize="@dimen/timer_input_timestamp_number_size" />
 
-  </RelativeLayout>
+            <TextView
+                android:id="@+id/second_symbol"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/hour_ones"
+                android:layout_marginBottom="5dp"
+                android:layout_toEndOf="@id/second_ones"
+                android:text="@string/second_symbol"
+                android:textSize="@dimen/timer_input_timestamp_symbol_size" />
 
-  <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/keypad"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_centerHorizontal="true"
-              android:layout_centerVertical="true"
-              android:layout_gravity="center"
-              android:columnCount="3"
-              android:orientation="horizontal">
+            <ImageButton
+                android:id="@+id/backspace"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_toEndOf="@id/second_symbol"
+                android:contentDescription="@string/backspaceDescription"
+                android:src="@android:drawable/ic_input_delete" />
 
-    <Button
-        android:id="@+id/keypad_one"
-        android:text="@string/one"
-        android:textSize="30sp"/>
+        </RelativeLayout>
 
-    <Button
-        android:id="@+id/keypad_two"
-        android:text="@string/two"
-        android:textSize="30sp"/>
+        <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/keypad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:columnCount="3"
+            android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/keypad_three"
-        android:text="@string/three"
-        android:textSize="30sp"/>
+            <Button
+                android:id="@+id/keypad_one"
+                android:text="@string/one"
+                android:textSize="30sp" />
 
-    <Button
-        android:id="@+id/keypad_four"
-        android:text="@string/four"
-        android:textSize="30sp"/>
+            <Button
+                android:id="@+id/keypad_two"
+                android:text="@string/two"
+                android:textSize="30sp" />
 
-    <Button
-        android:id="@+id/keypad_five"
-        android:text="@string/five"
-        android:textSize="30sp"/>
+            <Button
+                android:id="@+id/keypad_three"
+                android:text="@string/three"
+                android:textSize="30sp" />
 
-    <Button
-        android:id="@+id/keypad_six"
-        android:text="@string/six"
-        android:textSize="30sp"/>
+            <Button
+                android:id="@+id/keypad_four"
+                android:text="@string/four"
+                android:textSize="30sp" />
 
-    <Button
-        android:id="@+id/keypad_seven"
-        android:text="@string/seven"
-        android:textSize="30sp"/>
+            <Button
+                android:id="@+id/keypad_five"
+                android:text="@string/five"
+                android:textSize="30sp" />
 
-    <Button
-        android:id="@+id/keypad_eight"
-        android:text="@string/eight"
-        android:textSize="30sp"/>
+            <Button
+                android:id="@+id/keypad_six"
+                android:text="@string/six"
+                android:textSize="30sp" />
 
-    <Button
-        android:id="@+id/keypad_nine"
-        android:text="@string/nine"
-        android:textSize="30sp"/>
+            <Button
+                android:id="@+id/keypad_seven"
+                android:text="@string/seven"
+                android:textSize="30sp" />
 
-    <Button
-        android:id="@+id/keypad_zero"
-        android:layout_column="1"
-        android:text="@string/zero"
-        android:textSize="30sp"/>
+            <Button
+                android:id="@+id/keypad_eight"
+                android:text="@string/eight"
+                android:textSize="30sp" />
 
-  </GridLayout>
+            <Button
+                android:id="@+id/keypad_nine"
+                android:text="@string/nine"
+                android:textSize="30sp" />
 
-  <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/control"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_alignEnd="@+id/keypad"
-              android:layout_alignStart="@+id/keypad"
-              android:layout_below="@+id/keypad"
-              android:layout_centerVertical="true"
-              android:layout_gravity="center"
-              android:layout_marginTop="27dp"
-              android:columnCount="3"
-              android:orientation="horizontal">
+            <Button
+                android:id="@+id/keypad_zero"
+                android:layout_column="1"
+                android:text="@string/zero"
+                android:textSize="30sp" />
 
-    <Button
-        android:id="@+id/control_cancel"
-        android:text="@string/cancel_button"
-        android:textSize="30sp"/>
+        </GridLayout>
 
-    <Button
-        android:id="@+id/control_done"
-        android:layout_marginStart="25dp"
-        android:text="@string/done_button"
-        android:textSize="30sp"/>
-  </GridLayout>
+        <GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/control"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@+id/keypad"
+            android:layout_alignStart="@+id/keypad"
+            android:layout_below="@+id/keypad"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="27dp"
+            android:columnCount="3"
+            android:orientation="horizontal">
 
-</RelativeLayout>
+            <Button
+                android:id="@+id/control_cancel"
+                android:text="@string/cancel_button"
+                android:textSize="30sp" />
+
+            <Button
+                android:id="@+id/control_done"
+                android:layout_marginStart="25dp"
+                android:text="@string/done_button"
+                android:textSize="30sp" />
+        </GridLayout>
+
+    </RelativeLayout>
+<!--</ScrollView>-->
