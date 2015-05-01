@@ -6,7 +6,9 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.os.SystemClock;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -45,10 +47,10 @@ public class EditTimerActivity extends Activity {
 
     private static final String testVibrationString = "TEST-VIBRATION";
     private static final ArrayList<String> vibrationTypes;
+    private static final TimerListItem newTimerListItem = new TimerListItem(0, 0, VibrationType.NOTIFICATION_ALARM.name());
     private TextView delayText;
     private TextView intervalText;
     private int originalPosition;
-
     static {
         // Fill the types array with existing types
         vibrationTypes = new ArrayList<>(9);
@@ -62,6 +64,8 @@ public class EditTimerActivity extends Activity {
         vibrationTypes.add(VibrationType.RAMP_UP.name());
         vibrationTypes.add(VibrationType.RAMP_DOWN.name());
     }
+    private boolean addNew;
+    private TimerListItem itemToEdit;
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
@@ -157,21 +161,30 @@ public class EditTimerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_timer);
 
-        // Find out if we are adding a new timer, or editing an existing one
-        final Intent intent = getIntent();
-        final boolean addNew = intent == null ? true : intent.getBooleanExtra(TimerAdapter.PUT_EXTRA_ADD_ITEM, true);
-
-        final TimerListItem itemToEdit;
-        if (addNew) {
-            // Instantiate a new one
-            itemToEdit = new TimerListItem(0, 0, VibrationType.NOTIFICATION_ALARM.name());
+        if (savedInstanceState != null) {
+            Log.d("EditTimer","Found previous saved state");
+            // Must be a recreated activity
+            itemToEdit = savedInstanceState.getParcelable(TimerListItem.PUT_EXTRA_ITEM_KEY);
+            originalPosition = savedInstanceState.getInt(TimerListItem.PUT_EXTRA_POSITION_KEY);
         } else {
-            // Grab the one to be edited from the intent
-            itemToEdit = intent.getParcelableExtra(TimerListItem.PUT_EXTRA_ITEM_KEY);
+            Log.d("EditTimer","Found no state");
+            // Must be a newly started activity
+            // Find out if we are adding a new timer, or editing an existing one
+            final Intent intent = getIntent();
+            addNew = intent == null ? true : intent.getBooleanExtra(TimerAdapter.PUT_EXTRA_ADD_ITEM, true);
+
+            if (addNew) {
+                // Instantiate a new one
+                itemToEdit = newTimerListItem;
+            } else {
+                // Grab the one to be edited from the intent
+                itemToEdit = intent.getParcelableExtra(TimerListItem.PUT_EXTRA_ITEM_KEY);
+            }
+
+            // Find out where it is in the existing List
+            originalPosition = intent == null ? 999 : intent.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
         }
 
-        // Find out where it is in the existing List
-        originalPosition = intent == null ? 999 : intent.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
         if (originalPosition == 999) {
             // Hopefully this won't happen
             Toast.makeText(this, "Unknown original position", Toast.LENGTH_LONG).show();
@@ -204,6 +217,19 @@ public class EditTimerActivity extends Activity {
             final Button removeButton = (Button) findViewById(R.id.remove_button);
             removeButton.setOnClickListener(new EditTimerRemoveButtonOnClickListener());
         }
+    }
+
+    @Override
+    protected final void onSaveInstanceState(@NonNull final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(TimerListItem.PUT_EXTRA_ITEM_KEY, itemToEdit);
+        outState.putInt(TimerListItem.PUT_EXTRA_POSITION_KEY, originalPosition);
+    }
+
+    @Override
+    public final void onRestoreInstanceState(final Bundle savedInstanceState, final PersistableBundle persistentState) {
+        super.onRestoreInstanceState(savedInstanceState, persistentState);
+        onCreate(savedInstanceState);
     }
 
     public class TimestampClickListener implements Button.OnClickListener {

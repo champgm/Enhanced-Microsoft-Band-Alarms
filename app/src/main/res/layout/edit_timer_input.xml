@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center">
+        android:layout_gravity="top">
 
         <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/keypad"
             android:layout_centerHorizontal="true"
-            android:layout_gravity="center"
-            android:layout_marginBottom="30sp"
-            android:columnCount="10"
-            android:orientation="horizontal">
+            android:layout_marginTop="100sp"
+            android:layout_marginBottom="50sp">
 
             <TextView
                 android:id="@+id/hour_hundreds"
@@ -110,7 +109,6 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10dp"
                 android:layout_toEndOf="@id/second_symbol"
-                android:contentDescription="@string/backspaceDescription"
                 android:src="@android:drawable/ic_input_delete" />
 
         </RelativeLayout>
@@ -119,6 +117,7 @@
             android:id="@+id/keypad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@+id/time"
             android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:layout_gravity="center"
@@ -182,12 +181,11 @@
             android:id="@+id/control"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@+id/keypad"
-            android:layout_alignStart="@+id/keypad"
             android:layout_below="@+id/keypad"
+            android:layout_centerHorizontal="true"
             android:layout_centerVertical="true"
             android:layout_gravity="center"
-            android:layout_marginTop="27dp"
+            android:layout_marginTop="40dp"
             android:columnCount="3"
             android:orientation="horizontal">
 
@@ -204,4 +202,4 @@
         </GridLayout>
 
     </RelativeLayout>
-<!--</ScrollView>-->
+</ScrollView>

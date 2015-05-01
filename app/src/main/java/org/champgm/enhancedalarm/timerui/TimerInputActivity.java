@@ -65,13 +65,18 @@ public class TimerInputActivity extends Activity {
         final Intent intent = getIntent();
         timerType = intent == null ? 0 : intent.getIntExtra(PUT_EXTRA_REQUEST, 0);
 
-        // Get the timestamp from the intent that started this activity and display it.
-        final String possibleTimestamp = intent == null ? "" : intent.getStringExtra(PUT_EXTRA_TIMESTAMP);
-        if (Checks.isEmpty(possibleTimestamp) || !TimestampHelper.validateTimestamp(possibleTimestamp)) {
-            Toaster.send(this, "Invalid timestamp");
+        // Check to see if this activity has a saved state
+        if (savedInstanceState != null && savedInstanceState.containsKey(PUT_EXTRA_TIMESTAMP)) {
+            pushTimestamp(savedInstanceState.getString(PUT_EXTRA_TIMESTAMP));
+        } else {
+            // Otherwise, get the timestamp from the intent that started this activity and display it.
+            final String possibleTimestamp = intent == null ? "" : intent.getStringExtra(PUT_EXTRA_TIMESTAMP);
+            if (Checks.isEmpty(possibleTimestamp) || !TimestampHelper.validateTimestamp(possibleTimestamp)) {
+                Toaster.send(this, "Invalid timestamp");
+            }
+            final String timestamp = TimestampHelper.simplifyTimeStamp(possibleTimestamp);
+            pushTimestamp(timestamp);
         }
-        final String timestamp = TimestampHelper.simplifyTimeStamp(possibleTimestamp);
-        pushTimestamp(timestamp);
     }
 
     /**
