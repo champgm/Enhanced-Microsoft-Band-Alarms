@@ -15,7 +15,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.microsoft.band.notification.VibrationType;
+import com.microsoft.band.notifications.VibrationType;
 
 import org.champgm.enhancedalarm.R;
 import org.champgm.enhancedalarm.band.BandHelper;

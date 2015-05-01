@@ -7,7 +7,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.microsoft.band.BandClient;
-import com.microsoft.band.notification.VibrationType;
+import com.microsoft.band.notifications.VibrationType;
 
 import org.champgm.enhancedalarm.SettingsActivity;
 

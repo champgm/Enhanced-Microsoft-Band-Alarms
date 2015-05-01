@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
-import com.microsoft.band.BandDeviceInfo;
+import com.microsoft.band.BandInfo;
 
 import org.champgm.enhancedalarm.band.BandHelper;
 import org.champgm.enhancedalarm.util.Checks;
@@ -44,8 +44,8 @@ public class SettingsActivity extends Activity {
         } else {
             // Get the list of connected bands and fill the spinner's contents
             spinnerContents = new ArrayList<>(2);
-            final BandDeviceInfo[] connectedBands = BandHelper.getBands();
-            for (final BandDeviceInfo connectedBand : connectedBands) {
+            final BandInfo[] connectedBands = BandHelper.getBands();
+            for (final BandInfo connectedBand : connectedBands) {
                 spinnerContents.add(connectedBand.getName() + " : " + connectedBand.getMacAddress());
             }
 

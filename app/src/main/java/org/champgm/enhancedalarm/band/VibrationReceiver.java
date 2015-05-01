@@ -16,7 +16,7 @@ public class VibrationReceiver extends BroadcastReceiver {
      */
     public static final String TIMER_UUID_KEY = "4fb3b86a-70af-4dba-812e-964f4478a50d";
     /**
-     * The key that should be used to store the {@link com.microsoft.band.notification.VibrationType}, that should be
+     * The key that should be used to store the {@link com.microsoft.band.notifications.VibrationType}, that should be
      * sent to the band, in the intent that this receiver will receive
      */
     public static final String VIBRATION_TYPE_KEY = "4fb3b86a-70af-4dba-812e-964f4478a50d";

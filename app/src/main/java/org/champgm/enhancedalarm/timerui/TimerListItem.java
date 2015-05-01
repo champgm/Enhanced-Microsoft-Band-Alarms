@@ -3,7 +3,7 @@ package org.champgm.enhancedalarm.timerui;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.microsoft.band.notification.VibrationType;
+import com.microsoft.band.notifications.VibrationType;
 
 import org.champgm.enhancedalarm.R;
 import org.champgm.enhancedalarm.util.Checks;

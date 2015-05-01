@@ -10,7 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.microsoft.band.notification.VibrationType;
+import com.microsoft.band.notifications.VibrationType;
 
 import org.champgm.enhancedalarm.R;
 import org.champgm.enhancedalarm.util.Checks;

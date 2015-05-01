@@ -5,12 +5,12 @@ import android.util.Log;
 
 import com.microsoft.band.BandClient;
 import com.microsoft.band.BandException;
-import com.microsoft.band.ConnectionResult;
+import com.microsoft.band.ConnectionState;
 
 /**
  * An {@link android.os.AsyncTask} used to connect to a Microsoft Band
  */
-public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult> {
+public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionState> {
     /**
      * The number of times we will try to connect before we give up.
      */
@@ -23,11 +23,11 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
      * 
      * @param bandClient
      *            the client ot use to make the connection
-     * @return hopefully {@link ConnectionResult#OK}
+     * @return hopefully {@link ConnectionState#BOUND}
      */
-    public static ConnectionResult tryToConnect(final BandClient bandClient) {
+    public static ConnectionState tryToConnect(final BandClient bandClient) {
         if (bandClient == null) {
-            return ConnectionResult.INTERNAL_ERROR;
+            return ConnectionState.UNBOUND;
         }
 
         connectOnce(bandClient);
@@ -35,7 +35,7 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
         int connectionAttemptCount = 1;
         while (!bandClient.isConnected() && connectionAttemptCount < GIVE_UP) {
             if (bandClient.isConnected()) {
-                return ConnectionResult.OK;
+                return ConnectionState.BOUND;
             } else {
                 connectOnce(bandClient);
                 connectionAttemptCount++;
@@ -46,7 +46,7 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
                 }
             }
         }
-        return ConnectionResult.TIMEOUT;
+        return ConnectionState.UNBOUND;
     }
 
     /**
@@ -54,11 +54,11 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
      * 
      * @param bandClient
      *            the client to use to connect
-     * @return hopefully {@link com.microsoft.band.ConnectionResult#OK}
+     * @return hopefully {@link com.microsoft.band.ConnectionState#BOUND}
      */
-    private static ConnectionResult connectOnce(final BandClient bandClient) {
+    private static ConnectionState connectOnce(final BandClient bandClient) {
         if (bandClient == null) {
-            return ConnectionResult.INTERNAL_ERROR.INTERNAL_ERROR;
+            return ConnectionState.UNBOUND;
         }
 
         if (!bandClient.isConnected()) {
@@ -67,14 +67,14 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
                 return bandClient.connect().await();
             } catch (BandException e) {
                 // Fail.
-                return ConnectionResult.INTERNAL_ERROR;
+                return ConnectionState.UNBOUND;
             } catch (InterruptedException e1) {
                 // Give up.
-                return ConnectionResult.TIMEOUT;
+                return ConnectionState.UNBOUND;
             }
         } else {
             // Otherwise, that's fine, just return success
-            return ConnectionResult.OK;
+            return ConnectionState.BOUND;
         }
     }
 
@@ -83,13 +83,13 @@ public class ConnectToBand extends AsyncTask<BandClient, Void, ConnectionResult>
      *
      * @param bandClients
      *            a vararg of {@link com.microsoft.band.BandClient}s
-     * @return hopefully {@link ConnectionResult#OK}
+     * @return hopefully {@link ConnectionState#BOUND}
      */
     @Override
-    protected ConnectionResult doInBackground(final BandClient... bandClients) {
+    protected ConnectionState doInBackground(final BandClient... bandClients) {
         if (bandClients != null && bandClients.length > 0) {
             return tryToConnect(bandClients[0]);
         }
-        return ConnectionResult.INTERNAL_ERROR;
+        return ConnectionState.UNBOUND;
     }
 }

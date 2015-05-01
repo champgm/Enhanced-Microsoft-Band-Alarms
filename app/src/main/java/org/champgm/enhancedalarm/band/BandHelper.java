@@ -6,9 +6,9 @@ import android.graphics.BitmapFactory;
 
 import com.microsoft.band.BandClient;
 import com.microsoft.band.BandClientManager;
-import com.microsoft.band.BandDeviceInfo;
 import com.microsoft.band.BandException;
-import com.microsoft.band.notification.VibrationType;
+import com.microsoft.band.BandInfo;
+import com.microsoft.band.notifications.VibrationType;
 import com.microsoft.band.tiles.BandIcon;
 import com.microsoft.band.tiles.BandTile;
 import com.microsoft.band.tiles.BandTileManager;
@@ -105,12 +105,12 @@ public class BandHelper {
      * @param context
      *            the context from which to start the client-getting activity
      * @param position
-     *            the position of the desired band in the {@link com.microsoft.band.BandDeviceInfo} array. You can use
+     *            the position of the desired band in the {@link com.microsoft.band.BandInfo} array. You can use
      *            {@link BandHelper#getBands()} to see what bands are currently available.
      * @return the {@link com.microsoft.band.BandClient} for the band at the specified position
      */
     public static BandClient getBandClient(final Context context, final int position) {
-        final BandDeviceInfo[] bands = getBands();
+        final BandInfo[] bands = getBands();
         if (position > bands.length - 1) {
             Toaster.send(context, "Unable to retrieve band at position '" + position +
                     "'. Please check the list of connected bands in the settings menu.");
@@ -124,7 +124,7 @@ public class BandHelper {
      * 
      * @return list of current bands
      */
-    public static BandDeviceInfo[] getBands() {
+    public static BandInfo[] getBands() {
         return BandClientManager.getInstance().getPairedBands();
     }
 
@@ -132,7 +132,7 @@ public class BandHelper {
      * Sends a vibration with a {@link com.microsoft.band.BandClient}
      * 
      * @param vibrationType
-     *            the {@link com.microsoft.band.notification.VibrationType}
+     *            the {@link com.microsoft.band.notifications.VibrationType}
      * @param bandClient
      *            the client to use to send the specified vibration
      */
