@@ -22,4 +22,22 @@ proguard/
 # Log Files
 *.log
 
+# ====================  Mine  ==========================
 
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Intellij
+.idea/
+*.iml
+**/*.iml
+*.iws
+
+# Mac
+.DS_Store
+
+# Maven
+log/
+target/
