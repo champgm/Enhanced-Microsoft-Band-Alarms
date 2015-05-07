@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
@@ -93,6 +94,19 @@ public class EditTimerActivity extends Activity {
         Log.d("EDITING: ", String.valueOf(TimestampHelper.validateTimestamp(delayText.getText().toString())));
         Log.d("EDITING: ", String.valueOf(TimestampHelper.validateTimestamp(intervalText.getText().toString())));
 
+        // Build a new timer and place it into the intent, along with the position of the timer it is meant to
+        // replace
+        final TimerListItem resultTimer = getCurrentTimer();
+        if (resultTimer != null) {
+            final Intent resultIntent = new Intent();
+            resultIntent.putExtra(TimerListItem.PUT_EXTRA_ITEM_KEY, resultTimer);
+            resultIntent.putExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, originalPosition);
+            setResult(EDIT_RESULT_SUCCESS, resultIntent);
+        }
+        finish();
+    }
+
+    private TimerListItem getCurrentTimer() {
         if (delayText != null &&
                 delayText.getText() != null &&
                 Checks.notEmpty(delayText.getText().toString()) &&
@@ -109,13 +123,9 @@ public class EditTimerActivity extends Activity {
 
             // Build a new timer and place it into the intent, along with the position of the timer it is meant to
             // replace
-            final TimerListItem resultTimer = new TimerListItem(intervalInt, delayInt, vibrationType);
-            final Intent resultIntent = new Intent();
-            resultIntent.putExtra(TimerListItem.PUT_EXTRA_ITEM_KEY, resultTimer);
-            resultIntent.putExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, originalPosition);
-            setResult(EDIT_RESULT_SUCCESS, resultIntent);
+            return new TimerListItem(intervalInt, delayInt, vibrationType);
         }
-        finish();
+        return null;
     }
 
     /**
@@ -157,21 +167,27 @@ public class EditTimerActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.edit_timer);
 
-        // Find out if we are adding a new timer, or editing an existing one
-        final Intent intent = getIntent();
-        final boolean addNew = intent == null ? true : intent.getBooleanExtra(TimerAdapter.PUT_EXTRA_ADD_ITEM, true);
+        // Get original position and timer item from input
+        TimerListItem itemToEdit = new TimerListItem(0, 0, VibrationType.NOTIFICATION_ALARM.name());
+        if (savedInstanceState != null) {
+            // Grab saved timer item and original position
+            itemToEdit = savedInstanceState.getParcelable(TimerListItem.PUT_EXTRA_ITEM_KEY);
+            originalPosition = savedInstanceState.getInt(TimerListItem.PUT_EXTRA_POSITION_KEY);
+        } else if (getIntent() != null) {
+            // Find out if we are adding a new timer, or editing an existing one
+            final Intent intent = getIntent();
+            boolean addNew = intent.getBooleanExtra(TimerAdapter.PUT_EXTRA_ADD_ITEM, true);
 
-        final TimerListItem itemToEdit;
-        if (addNew) {
-            // Instantiate a new one
-            itemToEdit = new TimerListItem(0, 0, VibrationType.NOTIFICATION_ALARM.name());
-        } else {
-            // Grab the one to be edited from the intent
-            itemToEdit = intent.getParcelableExtra(TimerListItem.PUT_EXTRA_ITEM_KEY);
+            if (!addNew) {
+                // Grab the one to be edited from the intent
+                itemToEdit = intent.getParcelableExtra(TimerListItem.PUT_EXTRA_ITEM_KEY);
+            }
+
+            // Find out where it is in the existing List
+            originalPosition = intent.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
         }
 
-        // Find out where it is in the existing List
-        originalPosition = intent == null ? 999 : intent.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
+        // Parse original position and input timer item
         if (originalPosition == 999) {
             // Hopefully this won't happen
             Toast.makeText(this, "Unknown original position", Toast.LENGTH_LONG).show();
@@ -204,6 +220,21 @@ public class EditTimerActivity extends Activity {
             final Button removeButton = (Button) findViewById(R.id.remove_button);
             removeButton.setOnClickListener(new EditTimerRemoveButtonOnClickListener());
         }
+    }
+
+    @Override
+    protected final void onSaveInstanceState(final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.i("TimerInputActivity", "on save instance state called");
+        outState.putParcelable(TimerListItem.PUT_EXTRA_ITEM_KEY, getCurrentTimer());
+        outState.putInt(TimerListItem.PUT_EXTRA_POSITION_KEY, originalPosition);
+    }
+
+    @Override
+    public final void onRestoreInstanceState(final Bundle savedInstanceState, final PersistableBundle
+            persistentState) {
+        super.onRestoreInstanceState(savedInstanceState, persistentState);
+        onCreate(savedInstanceState);
     }
 
     public class TimestampClickListener implements Button.OnClickListener {
