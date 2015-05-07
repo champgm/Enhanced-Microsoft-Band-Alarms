@@ -3,6 +3,8 @@ package org.champgm.enhancedalarm.timerui;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -30,12 +32,8 @@ public class TimerInputActivity extends Activity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i("TimerInputActivity", "on create called");
         setContentView(R.layout.edit_timer_input);
-
-        // Get the type of timer we will be editing (this isn't really used, just put back into the result later so that
-        // the receiving class will know which field to update)
-        final Intent intent = getIntent();
-        timerType = intent == null ? 0 : intent.getIntExtra(PUT_EXTRA_REQUEST, 0);
 
         // Set the control button listeners
         findViewById(R.id.backspace).setOnClickListener(new BackspaceButtonListener());
@@ -63,11 +61,49 @@ public class TimerInputActivity extends Activity {
         timestampDisplay[5] = (TextView) findViewById(R.id.second_tens);
         timestampDisplay[6] = (TextView) findViewById(R.id.second_ones);
 
-        // Get the timestamp from the intent that started this activity and display it.
-        final String possibleTimestamp = intent == null ? "" : intent.getStringExtra(PUT_EXTRA_TIMESTAMP);
+        if (savedInstanceState != null) {
+            restoreStateFromSavedInstance(savedInstanceState);
+        } else if (getIntent() != null) {
+            final Intent intent = getIntent();
+            // Get the type of timer we will be editing (this isn't really used, just put back into the result later so
+            // that the receiving class will know which field to update)
+            final int timerType = intent == null ? 0 : intent.getIntExtra(PUT_EXTRA_REQUEST, 0);
+
+            // Get the timestamp from the intent that started this activity and display it.
+            final String possibleTimestamp = intent == null ? "" : intent.getStringExtra(PUT_EXTRA_TIMESTAMP);
+            restoreState(timerType, possibleTimestamp);
+        }
+
+    }
+
+    /**
+     * Get the timestamp and timer type, and call restore
+     * 
+     * @param savedInstanceState
+     *            the state saved previously
+     */
+    private void restoreStateFromSavedInstance(final Bundle savedInstanceState) {
+        final String possibleTimestamp = savedInstanceState.getString(PUT_EXTRA_TIMESTAMP);
+        final int timerType = savedInstanceState.getInt(PUT_EXTRA_REQUEST);
+        restoreState(timerType, possibleTimestamp);
+    }
+
+    /**
+     * Will set the timerType and
+     * 
+     * @param timerType
+     *            type of timer being edited
+     * @param possibleTimestamp
+     *            timestamp to attempt to parse and display
+     */
+    private void restoreState(final int timerType, final String possibleTimestamp) {
+        Log.i("TimerInputActivity", "restore state called");
+        this.timerType = timerType;
+
         if (Checks.isEmpty(possibleTimestamp) || !TimestampHelper.validateTimestamp(possibleTimestamp)) {
             Toaster.send(this, "Invalid timestamp");
         }
+
         final String timestamp = TimestampHelper.simplifyTimeStamp(possibleTimestamp);
         pushTimestamp(timestamp);
     }
@@ -145,6 +181,20 @@ public class TimerInputActivity extends Activity {
                 timestampDisplay[i].setText(String.valueOf(digits.get(i)));
             }
         }
+    }
+
+    @Override
+    protected final void onSaveInstanceState(final Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.i("TimerInputActivity", "on save instance state called");
+        outState.putString(PUT_EXTRA_TIMESTAMP, TimestampHelper.linkedListToTimestamp(digits));
+        outState.putInt(PUT_EXTRA_REQUEST, timerType);
+    }
+
+    @Override
+    public final void onRestoreInstanceState(final Bundle savedInstanceState, final PersistableBundle persistentState) {
+        super.onRestoreInstanceState(savedInstanceState, persistentState);
+        restoreStateFromSavedInstance(savedInstanceState);
     }
 
     public class BackspaceButtonListener implements Button.OnClickListener {
