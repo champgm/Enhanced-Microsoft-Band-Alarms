@@ -1,53 +1,41 @@
 package org.champgm.enhancedalarm.band;
 
-import java.util.Collection;
-import java.util.UUID;
-import java.util.concurrent.TimeoutException;
-
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.BitmapFactory;
-import android.util.Log;
 
-import org.champgm.enhancedalarm.R;
-
-import com.google.common.base.Preconditions;
 import com.microsoft.band.BandClient;
 import com.microsoft.band.BandClientManager;
-import com.microsoft.band.BandDeviceInfo;
 import com.microsoft.band.BandException;
-import com.microsoft.band.notification.VibrationType;
+import com.microsoft.band.BandInfo;
+import com.microsoft.band.notifications.VibrationType;
 import com.microsoft.band.tiles.BandIcon;
 import com.microsoft.band.tiles.BandTile;
 import com.microsoft.band.tiles.BandTileManager;
+
+import org.champgm.enhancedalarm.R;
+import org.champgm.enhancedalarm.util.Toaster;
+
+import java.util.Collection;
+import java.util.UUID;
+import java.util.concurrent.TimeoutException;
 
 /**
  * A helper class for interacting with the Microsoft Band
  */
 public class BandHelper {
-    public static final UUID TILE_UUID = UUID.fromString("7fb1372d-c9ed-41ed-8941-49b12a74d2bd");
-    public static final String TILE_NAME = "EnhancedTimer";
-
-    // private final Context context;
-    // private BandTile bandTile;
-    // private BandClient bandClient;
-
     /**
-     * Creates an instance and immediately attempts to connect to the band.
-     * 
-     * @param context
-     *            the context to use when creating intents
-     * @throws com.microsoft.band.BandException
-     *             if the band cannot be connected
-     * @throws InterruptedException
-     *             if connecting to the band takes too long
-     * @throws java.util.concurrent.TimeoutException
-     *             if something takes too long
+     * The UUID for this app's tile.
+     * (Currently this app does not use a tile, but if any messages or notifications are to be displayed in the future,
+     * it will need one)
      */
-    // public BandHelper(final Context context) throws BandException, InterruptedException, TimeoutException {
-    // this.context = context;
-    // connectToBand();
-    // }
+    public static final UUID TILE_UUID = UUID.fromString("7fb1372d-c9ed-41ed-8941-49b12a74d2bd");
+    /**
+     * The display name for this app's tile.
+     * (Currently this app does not use a tile, but if any messages or notifications are to be displayed in the
+     * future, it will need one)
+     */
+    public static final String TILE_NAME = "EnhancedTimer";
 
     /**
      * Adds this app's tile to the band.
@@ -62,14 +50,9 @@ public class BandHelper {
      *             if something takes too long
      */
     public static void addTile(final BandClient bandClient, final Activity activity) throws BandException, InterruptedException, TimeoutException {
-        Preconditions.checkNotNull(bandClient, "bandClient may not be null.");
-        Preconditions.checkNotNull(activity, "activity may not be null.");
-
         // Make sure we're connected
         connectToBand(bandClient);
-        if (!bandClient.isConnected()) {
-            Log.i("BandHelper", "NOT CONNECTED");
-        } else {
+        if (bandClient != null && bandClient.isConnected()) {
             // Instantiate the tile manager and get a list of existing tiles
             final BandTileManager tileManager = bandClient.getTileManager();
             final Collection<BandTile> tiles = bandClient.getTileManager().getTiles().await();
@@ -84,10 +67,77 @@ public class BandHelper {
             }
 
             // Add it if it's not there.
-            if (!foundTile) {
+            if (!foundTile && activity != null) {
                 tileManager.addTile(activity, getBandTile(activity));
             }
+        } else {
+            Toaster.send(activity, "Cannot add tile, band is not connected.");
         }
+    }
+
+    /**
+     * Connects to the band specified
+     * 
+     * @param bandClient
+     *            the client to connect.
+     */
+    public static void connectToBand(final BandClient bandClient) {
+        if (bandClient != null && !bandClient.isConnected()) {
+            new ConnectToBand().execute(bandClient);
+        }
+    }
+
+    /**
+     * Disconnects the given client, if it is connected.
+     * 
+     * @param bandClient
+     *            the client to disconnect.
+     */
+    public static void disconnect(final BandClient bandClient) {
+        if (bandClient != null && bandClient.isConnected()) {
+            bandClient.disconnect();
+        }
+    }
+
+    /**
+     * Will attempt to select a band and return an instance of its {@link com.microsoft.band.BandClient}
+     * 
+     * @param context
+     *            the context from which to start the client-getting activity
+     * @param position
+     *            the position of the desired band in the {@link com.microsoft.band.BandInfo} array. You can use
+     *            {@link BandHelper#getBands()} to see what bands are currently available.
+     * @return the {@link com.microsoft.band.BandClient} for the band at the specified position
+     */
+    public static BandClient getBandClient(final Context context, final int position) {
+        final BandInfo[] bands = getBands();
+        if (position > bands.length - 1) {
+            Toaster.send(context, "Unable to retrieve band at position '" + position +
+                    "'. Please check the list of connected bands in the settings menu.");
+            return null;
+        }
+        return BandClientManager.getInstance().create(context, bands[position]);
+    }
+
+    /**
+     * Gets a list of currently connected bands.
+     * 
+     * @return list of current bands
+     */
+    public static BandInfo[] getBands() {
+        return BandClientManager.getInstance().getPairedBands();
+    }
+
+    /**
+     * Sends a vibration with a {@link com.microsoft.band.BandClient}
+     * 
+     * @param vibrationType
+     *            the {@link com.microsoft.band.notifications.VibrationType}
+     * @param bandClient
+     *            the client to use to send the specified vibration
+     */
+    public static void sendVibration(final VibrationType vibrationType, final BandClient bandClient) {
+        new SendVibration(vibrationType).execute(bandClient);
     }
 
     /**
@@ -96,56 +146,28 @@ public class BandHelper {
      * @return the tile object
      */
     private static BandTile getBandTile(final Context context) {
-        Preconditions.checkNotNull(context, "context may not be null.");
+        if (context != null) {
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled = false;
+            final BandIcon tileIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(context.getResources(), R.raw.tile, options));
+            final BandIcon badgeIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(context.getResources(), R.raw.badge, options));
 
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inScaled = false;
-        final BandIcon tileIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(context.getResources(), R.raw.tile, options));
-        final BandIcon badgeIcon = BandIcon.toBandIcon(BitmapFactory.decodeResource(context.getResources(), R.raw.badge, options));
+            final BandTile.Builder bandTileBuilder = new BandTile.Builder(TILE_UUID, TILE_NAME, tileIcon)
+                    .setTileSmallIcon(badgeIcon);
 
-        final BandTile.Builder bandTileBuilder = new BandTile.Builder(TILE_UUID, TILE_NAME, tileIcon)
-                .setTileSmallIcon(badgeIcon);
-
-        // Return it
-        return bandTileBuilder.build();
-    }
-
-    /**
-     * Connects to the band
-     */
-    public static void connectToBand(final BandClient bandClient) {
-        if (bandClient != null && !bandClient.isConnected()) {
-            Preconditions.checkNotNull(bandClient, "bandClient may not be null.");
-            Log.d("BandHelper", "Connecting to band.");
-            new ConnectToBand().execute(bandClient);
+            // Return it
+            return bandTileBuilder.build();
         } else {
-            Log.d("BandHelper", "BandClient already connected.");
+            return null;
         }
     }
 
     /**
-     * Disconnects.
+     * Checks to see if any bands are connected
+     * 
+     * @return false if there are none
      */
-    public static void disconnect(final BandClient bandClient) {
-        if (bandClient != null && bandClient.isConnected()) {
-            Log.d("BandHelper", "Disconnecting from band.");
-            bandClient.disconnect();
-        } else {
-            Log.d("BandHelper", "Band not connected, cannot disconnect.");
-        }
-    }
-
-    public static BandClient getBandClient(final Context context, final int position) {
-        final BandDeviceInfo[] bands = getBands();
-        return BandClientManager.getInstance().create(context, bands[position]);
-    }
-
-    public static BandDeviceInfo[] getBands() {
-        return BandClientManager.getInstance().getPairedBands();
-    }
-
-    public static void sendVibration(final VibrationType vibrationType, final BandClient bandClient) {
-        Log.d("BandHelper", "Sending vibration type: " + vibrationType.toString());
-        new SendVibration(vibrationType).execute(bandClient);
+    public static boolean anyBandsConnected() {
+        return getBands().length > 0;
     }
 }

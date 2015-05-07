@@ -4,15 +4,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import org.champgm.enhancedalarm.timerui.EditTimerActivity;
 import org.champgm.enhancedalarm.timerui.TimerAdapter;
 import org.champgm.enhancedalarm.timerui.TimerListItem;
 import org.champgm.enhancedalarm.timerui.TimerListItemOnClickListener;
+import org.champgm.enhancedalarm.util.Checks;
+import org.champgm.enhancedalarm.util.Toaster;
 
 import java.util.ArrayList;
 
@@ -33,7 +35,8 @@ public class MainActivity extends ActionBarActivity {
     }
 
     /**
-     * auto-generated, not modified
+     * Sort of like a click-listener for all settings menu items.
+     * Currently the only one we care about is {@link org.champgm.enhancedalarm.R.id#action_settings}
      */
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
@@ -42,8 +45,9 @@ public class MainActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         final int id = item.getItemId();
 
-        // noinspection SimplifiableIfStatement
+        // Here is where we launch the settings activity if settings is clicked.
         if (id == R.id.action_settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
@@ -64,25 +68,40 @@ public class MainActivity extends ActionBarActivity {
      */
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
+        int resultPosition;
 
-        // The result of editing was actually an edited timer
-        if (EditTimerActivity.EDIT_RESULT_SUCCESS == resultCode) {
-            // Grab the resultant timer and its position in the TimerAdapter's ArrayList
-            final TimerListItem resultTimer = data.getParcelableExtra(TimerAdapter.PUT_EXTRA_ITEM_KEY);
-            final int resultPosition = data.getIntExtra(TimerAdapter.PUT_EXTRA_POSITION_KEY, 999);
+        switch (resultCode) {
+            case EditTimerActivity.EDIT_RESULT_SUCCESS:
+                if (Checks.notNull(data)) {
+                    // The result of editing was actually an edited timer
+                    // Grab the resultant timer and its position in the TimerAdapter's ArrayList
+                    final TimerListItem resultTimer = data.getParcelableExtra(TimerListItem.PUT_EXTRA_ITEM_KEY);
+                    resultPosition = data.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
 
-            // Hopefully this never happens...
-            if (resultPosition == 999) {
-                Toast.makeText(this, "Unknown position", Toast.LENGTH_LONG).show();
-            } else {
-                // Replace the edited timer with the new one
-                timerAdapter.replaceItem(resultPosition, resultTimer);
-            }
-        } else if (EditTimerActivity.DELETE_RESULT_SUCCESS == resultCode) {
-            // The result of editing was a removed timer.
-            // Grab the position and remove the item at that position.
-            final int resultPosition = data.getIntExtra(TimerAdapter.PUT_EXTRA_POSITION_KEY, 999);
-            timerAdapter.removeItem(resultPosition);
+                    // Hopefully this never happens...
+                    if (resultPosition == 999) {
+                        Toaster.send(this, "Unknown position");
+                    } else {
+                        // Replace the edited timer with the new one
+                        timerAdapter.replaceItem(resultPosition, resultTimer);
+                    }
+                }
+                break;
+            case EditTimerActivity.DELETE_RESULT_SUCCESS:
+                if (Checks.notNull(data)) {
+                    // The result of editing was a removed timer.
+                    // Grab the position and remove the item at that position.
+                    resultPosition = data.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
+                    if (resultPosition == 999) {
+                        Toaster.send(this, "Unknown position");
+                    } else {
+                        timerAdapter.removeItem(resultPosition);
+                    }
+                }
+                break;
+            default:
+                Log.d("MAIN", "Unrecognized code: " + requestCode);
+                break;
         }
     }
 
@@ -97,12 +116,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        // Create this app's band tile, if it doesn't exist
-        // NOTE: it seems like this isn't really necessary. Also, if we don't do this, it will save one or two of those
-        // crazy leaked resource exceptions.
-        // createTile();
+        setContentView(R.layout.main);
 
         // Restore or create a new TimerAdapter if needed
         restoreTimerAdapter(savedInstanceState);
@@ -111,7 +125,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected final void onSaveInstanceState(final Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(TimerAdapter.PUT_EXTRA_ITEM_KEY, timerAdapter.getContents());
+        outState.putParcelableArrayList(TimerListItem.PUT_EXTRA_ITEM_KEY, timerAdapter.getContents());
     }
 
     @Override
@@ -122,10 +136,10 @@ public class MainActivity extends ActionBarActivity {
     private void restoreTimerAdapter(final Bundle savedInstanceState) {
         // Create a timer adapter with the restored contents, if necessary.
         if (timerAdapter == null) {
-            if (savedInstanceState == null || !savedInstanceState.containsKey(TimerAdapter.PUT_EXTRA_ITEM_KEY)) {
+            if (savedInstanceState == null || !savedInstanceState.containsKey(TimerListItem.PUT_EXTRA_ITEM_KEY)) {
                 timerAdapter = new TimerAdapter(this);
             } else {
-                final ArrayList<TimerListItem> listItems = savedInstanceState.getParcelableArrayList(TimerAdapter.PUT_EXTRA_ITEM_KEY);
+                final ArrayList<TimerListItem> listItems = savedInstanceState.getParcelableArrayList(TimerListItem.PUT_EXTRA_ITEM_KEY);
                 timerAdapter = new TimerAdapter(this, listItems);
             }
         }
@@ -138,28 +152,4 @@ public class MainActivity extends ActionBarActivity {
         timerList.setOnItemClickListener(new TimerListItemOnClickListener(timerAdapter));
     }
 
-    /**
-     * Attempts to create a tile for this application on the band if it does not exist.
-     * NOTE: it seems like this isn't really necessary. Also, if we don't do this, it will save one or two of those
-     * crazy leaked resource exceptions.
-     */
-    // private void createTile() {
-    // // Create a new band client
-    // final BandClientManager bandClientManager = BandClientManager.getInstance();
-    // final BandDeviceInfo[] pairedBands = bandClientManager.getPairedBands();
-    // final BandClient bandClient = bandClientManager.create(this, pairedBands[0]);
-    //
-    // // Add the Tile
-    // try {
-    // BandHelper.addTile(bandClient, this);
-    // } catch (BandException e) {
-    // Log.i("MainActivity", "Trouble connecting to band");
-    // } catch (InterruptedException e) {
-    // Log.i("MainActivity", "Connection to band interrupted.");
-    // } catch (TimeoutException e) {
-    // Log.i("MainActivity", "Timeout connecting to band.");
-    // }
-    //
-    // BandHelper.disconnect(bandClient);
-    // }
 }
