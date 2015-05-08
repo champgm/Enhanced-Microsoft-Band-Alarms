@@ -14,7 +14,7 @@ public class VibrationReceiver extends BroadcastReceiver {
     /**
      * The key that should be used to store timer UUIDs in the intent that this receiver will receive
      */
-    public static final String TIMER_UUID_KEY = "4fb3b86a-70af-4dba-812e-964f4478a50d";
+    public static final String UUID_KEY = "4fb3b86a-70af-4dba-812e-964f4478a50d";
     /**
      * The key that should be used to store the {@link com.microsoft.band.notifications.VibrationType}, that should be
      * sent to the band, in the intent that this receiver will receive
@@ -39,7 +39,7 @@ public class VibrationReceiver extends BroadcastReceiver {
         }
         // Create an intent, put the necessary timer UID and vibration type on it, and use it to start the BandService
         final Intent bandServiceIntent = new Intent(context, BandService.class);
-        bandServiceIntent.putExtra(TIMER_UUID_KEY, intent.getStringExtra(TIMER_UUID_KEY));
+        bandServiceIntent.putExtra(UUID_KEY, intent.getStringExtra(UUID_KEY));
         bandServiceIntent.putExtra(VIBRATION_TYPE_KEY, intent.getStringExtra(VIBRATION_TYPE_KEY));
         context.startService(bandServiceIntent);
     }

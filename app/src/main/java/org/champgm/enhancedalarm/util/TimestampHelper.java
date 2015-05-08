@@ -44,13 +44,7 @@ public class TimestampHelper {
     }
 
     public static boolean validateTimestamp(final String timestamp) {
-        return timestamp.matches(VALID_TIMESTAMP_PATTERN);
-    }
-
-    private static void validate(final String timestamp) {
-        if (!validateTimestamp(timestamp)) {
-            throw new RuntimeException("Invalid timestamp: " + timestamp);
-        }
+        return timestamp != null && timestamp.matches(VALID_TIMESTAMP_PATTERN);
     }
 
     private static class ParsedTimestamp {
@@ -72,31 +66,35 @@ public class TimestampHelper {
         }
 
         public ParsedTimestamp(final String timestampToParse) {
-            validate(timestampToParse);
-            final int firstColonAt = timestampToParse.indexOf(':');
-            final int secondColonAt = timestampToParse.indexOf(':', firstColonAt + 1);
+            if (validateTimestamp(timestampToParse)) {
+                final int firstColonAt = timestampToParse.indexOf(':');
+                final int secondColonAt = timestampToParse.indexOf(':', firstColonAt + 1);
 
-            Integer hoursInteger = Integer.valueOf(timestampToParse.substring(0, firstColonAt));
-            Integer minutesInteger = Integer.valueOf(timestampToParse.substring(firstColonAt + 1, secondColonAt));
-            Integer secondsInteger = Integer.valueOf(timestampToParse.substring(secondColonAt + 1, timestampToParse.length()));
+                Integer hoursInteger = Integer.valueOf(timestampToParse.substring(0, firstColonAt));
+                Integer minutesInteger = Integer.valueOf(timestampToParse.substring(firstColonAt + 1, secondColonAt));
+                Integer secondsInteger = Integer.valueOf(timestampToParse.substring(secondColonAt + 1, timestampToParse.length()));
 
-            if (secondsInteger > 59) {
-                minutesInteger++;
-                secondsInteger = secondsInteger - 60;
+                if (secondsInteger > 59) {
+                    minutesInteger++;
+                    secondsInteger = secondsInteger - 60;
+                }
+
+                if (minutesInteger > 59) {
+                    hoursInteger++;
+                    minutesInteger = minutesInteger - 60;
+                }
+
+                hoursInt = hoursInteger;
+                minutesInt = minutesInteger;
+                secondsInt = secondsInteger;
+            } else {
+                hoursInt = 0;
+                minutesInt = 0;
+                secondsInt = 0;
             }
-
-            if (minutesInteger > 59) {
-                hoursInteger++;
-                minutesInteger = minutesInteger - 60;
-            }
-
-            hoursInt = hoursInteger;
-            minutesInt = minutesInteger;
-            secondsInt = secondsInteger;
-
-            hoursString = getString(hoursInteger);
-            minutesString = getString(minutesInteger);
-            secondsString = getString(secondsInteger);
+            hoursString = getString(hoursInt);
+            minutesString = getString(minutesInt);
+            secondsString = getString(secondsInt);
         }
 
         @Override

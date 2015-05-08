@@ -4,9 +4,6 @@ import android.test.AndroidTestCase;
 
 import junit.framework.Assert;
 
-/**
- * Created by mc023219 on 4/16/15.
- */
 public class TimestampHelperTest extends AndroidTestCase {
 
     public void testValidTimestamps() {

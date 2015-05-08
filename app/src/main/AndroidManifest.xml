@@ -25,7 +25,7 @@ FROM THE SDK README: If you are compiling against version 21 of the Android SDK
     <android:uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="18" />
-    
+
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
@@ -66,6 +66,38 @@ FROM THE SDK README: If you are compiling against version 21 of the Android SDK
         <activity
             android:name=".SettingsActivity"
             android:label="@string/title_activity_settings" >
+        </activity>
+        <activity
+            android:name=".TimersFragment"
+            android:label="@string/title_activity_timers"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.champgm.enhancedalarm.MainActivity" />
+        </activity>
+        <activity
+            android:name=".AlarmsFragment"
+            android:label="@string/title_activity_alarms" >
+        </activity>
+        <activity
+            android:name=".alarmui.EditAlarmActivity"
+            android:label="@string/title_activity_edit_alarm" >
+        </activity>
+        <activity
+            android:name=".common.EditActivity"
+            android:label="@string/title_activity_common"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.champgm.enhancedalarm.MainActivity" />
+        </activity>
+        <activity
+            android:name=".alarmui.AlarmInputActivity"
+            android:label="@string/title_activity_alarm_input"
+            android:parentActivityName=".alarmui.EditAlarmActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="org.champgm.enhancedalarm.alarmui.EditAlarmActivity" />
         </activity>
     </application>
 

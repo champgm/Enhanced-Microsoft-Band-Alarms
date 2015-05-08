@@ -51,15 +51,15 @@ public class TimerListItemOnClickListener implements AdapterView.OnItemClickList
     public void onItemClick(final AdapterView<?> parent, final View view, final int position, final long id) {
         // Get the item from the adapter
         final TimerListItem timerListItem = timerAdapter.getItem(position);
-        if (Checks.notNull(timerListItem) &&
-                Checks.notNull(view)) {
+        if (Checks.isNotNull(timerListItem) &&
+                Checks.isNotNull(view)) {
             // Ignore the add button item thing, that doesn't need an on-item-click listener.
             if (timerListItem.uuid != TimerListItem.ADD_ITEM_UUID) {
                 if (!BandHelper.anyBandsConnected()) {
                     Toast.makeText(view.getContext(), R.string.no_bands_found, Toast.LENGTH_LONG).show();
                 } else {
                     final Intent intent = new Intent(view.getContext(), VibrationReceiver.class);
-                    intent.putExtra(VibrationReceiver.TIMER_UUID_KEY, timerListItem.uuid.toString());
+                    intent.putExtra(VibrationReceiver.UUID_KEY, timerListItem.uuid.toString());
                     intent.putExtra(VibrationReceiver.VIBRATION_TYPE_KEY, timerListItem.vibrationTypeName);
                     final PendingIntent pendingIntent = PendingIntent.getBroadcast(view.getContext(), timerListItem.uuid.hashCode(), intent, 0);
 

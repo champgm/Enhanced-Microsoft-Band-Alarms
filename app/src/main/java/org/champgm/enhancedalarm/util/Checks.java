@@ -37,7 +37,7 @@ public class Checks {
         return object == null;
     }
 
-    public static boolean notNull(final Object object) {
+    public static boolean isNotNull(final Object object) {
         return object != null;
     }
 }

@@ -1,14 +1,14 @@
 package org.champgm.enhancedalarm.timerui;
 
+import java.util.UUID;
+
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import com.microsoft.band.notifications.VibrationType;
 
 import org.champgm.enhancedalarm.R;
 import org.champgm.enhancedalarm.util.Checks;
 
-import java.util.UUID;
+import com.microsoft.band.notifications.VibrationType;
 
 /**
  * This is an object that contains all of the information needed to fill out a timer's {@link android.view.View} as well
@@ -50,13 +50,27 @@ public class TimerListItem implements Parcelable {
      */
     public final UUID uuid;
     /**
-     * String corresponding to the chosen {@link com.microsoft.band.notification.VibrationType}
+     * String corresponding to the chosen {@link com.microsoft.band.notifications.VibrationType}
      */
     public final String vibrationTypeName;
     /**
      * Flag denoting if this timer is currently running
      */
     public boolean started = false;
+    private static final String uuidPrefix = "uuid=";
+    private static final String intervalPrefix = ", interval=";
+    private static final String delayPrefix = ", delay=";
+    private static final String startedPrefix = ", started=";
+    private static final String vibrationTypeNamePrefix = ", vibrationTypeName=";
+    private static final char closeBracket = '}';
+
+    public TimerListItem(final UUID uuid, final int interval, final int delay, final String vibrationTypeName, final boolean started) {
+        this.uuid = uuid;
+        this.interval = interval;
+        this.delay = delay;
+        this.vibrationTypeName = vibrationTypeName;
+        this.started = started;
+    }
 
     /**
      * This is probably the constructor you want. It will set the input data and a random UUID.
@@ -66,7 +80,7 @@ public class TimerListItem implements Parcelable {
      * @param delay
      *            The delay before the first event fires
      * @param vibrationTypeName
-     *            String corresponding to the chosen {@link com.microsoft.band.notification.VibrationType}
+     *            String corresponding to the chosen {@link com.microsoft.band.notifications.VibrationType}
      */
     public TimerListItem(final int interval, final int delay, final String vibrationTypeName) {
         this.interval = interval;
@@ -86,7 +100,7 @@ public class TimerListItem implements Parcelable {
      *            the input data to replicate
      */
     public TimerListItem(final Parcel parcel) {
-        if (Checks.notNull(parcel)) {
+        if (Checks.isNotNull(parcel)) {
             interval = parcel.readInt();
             delay = parcel.readInt();
             started = parcel.readInt() == 1;
@@ -143,12 +157,21 @@ public class TimerListItem implements Parcelable {
     @Override
     public String toString() {
         return "TimerListItem{" +
-                "uuid=" + uuid +
-                ", interval=" + interval +
-                ", delay=" + delay +
-                ", started=" + started +
-                ", vibrationTypeName=" + vibrationTypeName +
-                '}';
+                uuidPrefix + uuid +
+                intervalPrefix + interval +
+                delayPrefix + delay +
+                startedPrefix + started +
+                vibrationTypeNamePrefix + vibrationTypeName +
+                closeBracket;
+    }
+
+    public static TimerListItem fromString(final String stringRepresentation) {
+        final UUID uuid = UUID.fromString(stringRepresentation.substring(stringRepresentation.indexOf(uuidPrefix) + uuidPrefix.length(), stringRepresentation.indexOf(intervalPrefix)));
+        final int interval = Integer.valueOf(stringRepresentation.substring(stringRepresentation.indexOf(intervalPrefix) + intervalPrefix.length(), stringRepresentation.indexOf(delayPrefix)));
+        final int delay = Integer.valueOf(stringRepresentation.substring(stringRepresentation.indexOf(delayPrefix) + delayPrefix.length(), stringRepresentation.indexOf(startedPrefix)));
+        final boolean started = Boolean.valueOf(stringRepresentation.substring(stringRepresentation.indexOf(startedPrefix) + startedPrefix.length(), stringRepresentation.indexOf(vibrationTypeNamePrefix)));
+        final String vibrationTypeName = stringRepresentation.substring(stringRepresentation.indexOf(vibrationTypeNamePrefix) + vibrationTypeNamePrefix.length(), stringRepresentation.indexOf(closeBracket));
+        return new TimerListItem(uuid, interval, delay, vibrationTypeName, started);
     }
 
     @Override

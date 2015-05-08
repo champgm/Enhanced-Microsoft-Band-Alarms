@@ -3,26 +3,25 @@ package org.champgm.enhancedalarm;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.PagerAdapter;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
-
-import org.champgm.enhancedalarm.timerui.EditTimerActivity;
-import org.champgm.enhancedalarm.timerui.TimerAdapter;
-import org.champgm.enhancedalarm.timerui.TimerListItem;
-import org.champgm.enhancedalarm.timerui.TimerListItemOnClickListener;
-import org.champgm.enhancedalarm.util.Checks;
-import org.champgm.enhancedalarm.util.Toaster;
-
-import java.util.ArrayList;
 
 /**
  * The main activity class, really just a holder for a {@link org.champgm.enhancedalarm.timerui.TimerAdapter}.
  */
 public class MainActivity extends ActionBarActivity {
-    private TimerAdapter timerAdapter;
+
+    private ViewPager mPager;
+    private PagerAdapter mPagerAdapter;
 
     /**
      * auto-generated, not modified
@@ -54,63 +53,9 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * This will be called after EditTimerActivity finishes.
-     *
-     * @param requestCode
-     *            dunno what this is, it isn't used.
-     * @param resultCode
-     *            the result of the activity, should be
-     *            {@link org.champgm.enhancedalarm.timerui.EditTimerActivity#EDIT_RESULT_SUCCESS} or
-     *            {@link org.champgm.enhancedalarm.timerui.EditTimerActivity#DELETE_RESULT_SUCCESS}
-     * @param data
-     *            the data returned by the {@link org.champgm.enhancedalarm.timerui.EditTimerActivity}
-     */
-    @Override
-    public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        int resultPosition;
-
-        switch (resultCode) {
-            case EditTimerActivity.EDIT_RESULT_SUCCESS:
-                if (Checks.notNull(data)) {
-                    // The result of editing was actually an edited timer
-                    // Grab the resultant timer and its position in the TimerAdapter's ArrayList
-                    final TimerListItem resultTimer = data.getParcelableExtra(TimerListItem.PUT_EXTRA_ITEM_KEY);
-                    resultPosition = data.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
-
-                    // Hopefully this never happens...
-                    if (resultPosition == 999) {
-                        Toaster.send(this, "Unknown position");
-                    } else {
-                        // Replace the edited timer with the new one
-                        timerAdapter.replaceItem(resultPosition, resultTimer);
-                    }
-                }
-                break;
-            case EditTimerActivity.DELETE_RESULT_SUCCESS:
-                if (Checks.notNull(data)) {
-                    // The result of editing was a removed timer.
-                    // Grab the position and remove the item at that position.
-                    resultPosition = data.getIntExtra(TimerListItem.PUT_EXTRA_POSITION_KEY, 999);
-                    if (resultPosition == 999) {
-                        Toaster.send(this, "Unknown position");
-                    } else {
-                        timerAdapter.removeItem(resultPosition);
-                    }
-                }
-                break;
-            default:
-                Log.d("MAIN", "Unrecognized code: " + requestCode);
-                break;
-        }
-    }
-
     @Override
     public final void onRestoreInstanceState(final Bundle savedInstanceState, final PersistableBundle persistentState) {
         super.onRestoreInstanceState(savedInstanceState, persistentState);
-
-        // Restore or create a new TimerAdapter if needed
-        restoreTimerAdapter(savedInstanceState);
     }
 
     @Override
@@ -118,38 +63,68 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        // Restore or create a new TimerAdapter if needed
-        restoreTimerAdapter(savedInstanceState);
+        // Instantiate a ViewPager and a PagerAdapter.
+        mPager = (ViewPager) findViewById(R.id.pager);
+        mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
+        mPager.setAdapter(mPagerAdapter);
+        mPager.setOnPageChangeListener(new PageChangeListener());
+
+        final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        actionBar.addTab(actionBar.newTab().setText(R.string.tab_timers).setTabListener(new TabListener()));
+        actionBar.addTab(actionBar.newTab().setText(R.string.tab_alarms).setTabListener(new TabListener()));
     }
 
-    @Override
-    protected final void onSaveInstanceState(final Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(TimerListItem.PUT_EXTRA_ITEM_KEY, timerAdapter.getContents());
-    }
+    private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
+        public ScreenSlidePagerAdapter(final FragmentManager fm) {
+            super(fm);
+        }
 
-    @Override
-    protected final void onStop() {
-        super.onStop();
-    }
-
-    private void restoreTimerAdapter(final Bundle savedInstanceState) {
-        // Create a timer adapter with the restored contents, if necessary.
-        if (timerAdapter == null) {
-            if (savedInstanceState == null || !savedInstanceState.containsKey(TimerListItem.PUT_EXTRA_ITEM_KEY)) {
-                timerAdapter = new TimerAdapter(this);
-            } else {
-                final ArrayList<TimerListItem> listItems = savedInstanceState.getParcelableArrayList(TimerListItem.PUT_EXTRA_ITEM_KEY);
-                timerAdapter = new TimerAdapter(this, listItems);
+        @Override
+        public Fragment getItem(final int position) {
+            Log.i("MAIN", "got item: " + position);
+            switch (position) {
+                case 0:
+                    return new TimersFragment();
+                case 1:
+                    return new AlarmsFragment();
+                default:
+                    return new TimersFragment();
             }
         }
 
-        // Create a ListView and assign it the TimerAdapter.
-        final ListView timerList = (ListView) findViewById(R.id.timerList);
-        timerList.setAdapter(timerAdapter);
+        @Override
+        public int getCount() {
+            return 2;
+        }
+    }
 
-        // Also, set the on-click listener
-        timerList.setOnItemClickListener(new TimerListItemOnClickListener(timerAdapter));
+    private class PageChangeListener extends ViewPager.SimpleOnPageChangeListener{
+        @Override
+        public void onPageSelected(int position) {
+            final ActionBar supportActionBar = getSupportActionBar();
+            if (supportActionBar != null) {
+                supportActionBar.setSelectedNavigationItem(position);
+            }
+        }
+    }
+
+    private class TabListener implements ActionBar.TabListener {
+
+        @Override
+        public void onTabSelected(final ActionBar.Tab tab, final FragmentTransaction fragmentTransaction) {
+            mPager.setCurrentItem(tab.getPosition());
+        }
+
+        @Override
+        public void onTabUnselected(final ActionBar.Tab tab, final FragmentTransaction fragmentTransaction) {
+
+        }
+
+        @Override
+        public void onTabReselected(final ActionBar.Tab tab, final FragmentTransaction fragmentTransaction) {
+
+        }
     }
 
 }

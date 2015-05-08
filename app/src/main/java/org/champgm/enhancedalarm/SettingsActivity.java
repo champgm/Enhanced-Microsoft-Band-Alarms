@@ -1,5 +1,7 @@
 package org.champgm.enhancedalarm;
 
+import java.util.ArrayList;
+
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,13 +10,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
-import com.microsoft.band.BandInfo;
-
 import org.champgm.enhancedalarm.band.BandHelper;
 import org.champgm.enhancedalarm.util.Checks;
 import org.champgm.enhancedalarm.util.Toaster;
 
-import java.util.ArrayList;
+import com.microsoft.band.BandInfo;
 
 /**
  * This {@link android.app.Activity} pops up when you click the "Settings" option from the context menu
@@ -43,7 +43,7 @@ public class SettingsActivity extends Activity {
             bandSpinner = null;
         } else {
             // Get the list of connected bands and fill the spinner's contents
-            spinnerContents = new ArrayList<>(2);
+            spinnerContents = new ArrayList<String>(2);
             final BandInfo[] connectedBands = BandHelper.getBands();
             for (final BandInfo connectedBand : connectedBands) {
                 spinnerContents.add(connectedBand.getName() + " : " + connectedBand.getMacAddress());
@@ -51,7 +51,7 @@ public class SettingsActivity extends Activity {
 
             // Assign the spinner adapter to the spinner layout thing
             bandSpinner = (Spinner) findViewById(R.id.bandPicker);
-            final ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, spinnerContents);
+            final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, spinnerContents);
             bandSpinner.setAdapter(adapter);
         }
 
@@ -81,7 +81,7 @@ public class SettingsActivity extends Activity {
 
         /**
          * Creates an instance
-         * 
+         *
          * @param bandSpinner
          *            the spinner from which to retrieve the selected band
          */
@@ -97,11 +97,11 @@ public class SettingsActivity extends Activity {
          */
         @Override
         public void onClick(final View view) {
-            if (Checks.notNull(bandSpinner)) {
+            if (Checks.isNotNull(bandSpinner)) {
                 final int selectedIndex = spinnerContents.indexOf(String.valueOf(bandSpinner.getSelectedItem()));
                 final SharedPreferences.Editor sharedPreferencesEditor = getSharedPreferences(SettingsActivity.PREF_FILE_NAME, MODE_PRIVATE).edit();
                 sharedPreferencesEditor.putInt(SELECTED_BAND, selectedIndex);
-                sharedPreferencesEditor.commit();
+                sharedPreferencesEditor.apply();
             }
             finish();
         }
