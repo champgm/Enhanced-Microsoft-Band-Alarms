@@ -1,10 +1,5 @@
 package org.champgm.enhancedalarm.alarmui;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -19,6 +14,12 @@ import org.champgm.enhancedalarm.R;
 import org.champgm.enhancedalarm.util.Checks;
 import org.champgm.enhancedalarm.util.Days;
 import org.champgm.enhancedalarm.util.Toaster;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 
 public class AlarmAdapter extends BaseAdapter {
     /**
@@ -234,5 +235,10 @@ public class AlarmAdapter extends BaseAdapter {
 
         // Don't forget to update the list and views!
         updateData();
+    }
+
+
+    public static void flash(String uuid){
+        final UUID uuid1 = UUID.fromString(uuid);
     }
 }

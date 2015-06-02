@@ -1,20 +1,20 @@
 package org.champgm.enhancedalarm.alarmui;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
-
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+
+import com.microsoft.band.notifications.VibrationType;
 
 import org.champgm.enhancedalarm.util.Checks;
 import org.champgm.enhancedalarm.util.Days;
 import org.champgm.enhancedalarm.util.Period;
 
-import com.microsoft.band.notifications.VibrationType;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
 
 public class AlarmListItem implements Parcelable {
     /**
@@ -66,6 +66,10 @@ public class AlarmListItem implements Parcelable {
      * Denotes if this alarm is currently enabled or disabled.
      */
     public boolean enabled = false;
+    /**
+     * Denotes if this alarm is currently firing
+     */
+    public boolean firing = false;
     private static final String uuidPrefix = "uuid=";
     private static final String vibrationTypeNamePrefix = ", vibrationTypeName=";
     private static final String labelPrefix = ", label=";
@@ -97,7 +101,8 @@ public class AlarmListItem implements Parcelable {
             final Collection<Days> days,
             final String time,
             final Period period,
-            final boolean enabled) {
+            final boolean enabled,
+            final boolean firing) {
         this.uuid = UUID.randomUUID();
         if (Checks.isEmpty(vibrationTypeName)) {
             this.vibrationTypeName = vibrationTypeName;
@@ -121,6 +126,7 @@ public class AlarmListItem implements Parcelable {
         }
         this.period = period;
         this.enabled = enabled;
+        this.firing = firing;
     }
 
     public AlarmListItem(final UUID uuid,
@@ -129,7 +135,8 @@ public class AlarmListItem implements Parcelable {
             final Collection<Days> days,
             final String time,
             final Period period,
-            final boolean enabled) {
+            final boolean enabled,
+                         final boolean firing) {
         this.uuid = uuid;
         this.vibrationTypeName = vibrationTypeName;
         this.label = label;
@@ -137,6 +144,7 @@ public class AlarmListItem implements Parcelable {
         this.time = time;
         this.period = period;
         this.enabled = enabled;
+        this.firing=firing;
     }
 
     /**

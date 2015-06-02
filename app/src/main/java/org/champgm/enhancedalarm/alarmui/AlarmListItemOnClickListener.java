@@ -60,7 +60,6 @@ public class AlarmListItemOnClickListener implements AdapterView.OnItemClickList
                 if (!BandHelper.anyBandsConnected()) {
                     Toast.makeText(view.getContext(), R.string.no_bands_found, Toast.LENGTH_LONG).show();
                 } else {
-
                     final HashMap<Days, PendingIntent> pendingIntents = new HashMap<Days, PendingIntent>(7);
 
                     final Intent intent = new Intent(view.getContext(), VibrationReceiver.class);
@@ -112,6 +111,7 @@ public class AlarmListItemOnClickListener implements AdapterView.OnItemClickList
                             calendar.set(Calendar.MINUTE, parsedTime.minutesInt);
                             Log.i("Set the Minute -", calendar.toString());
                             final int today = calendar.get(Calendar.DAY_OF_WEEK);
+
                             if (today < day.calendarDay) {
                                 calendar.add(Calendar.DAY_OF_WEEK, today + (7 - day.calendarDay));
                             } else {
