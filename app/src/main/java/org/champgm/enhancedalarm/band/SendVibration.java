@@ -7,6 +7,8 @@ import com.microsoft.band.BandClient;
 import com.microsoft.band.ConnectionState;
 import com.microsoft.band.notifications.VibrationType;
 
+import java.util.Arrays;
+
 /**
  * A task for sending vibration to the band.
  */
@@ -14,17 +16,19 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionState> 
     /**
      * The number of times we will try to send the vibration before we give up.
      */
-    public static final int GIVE_UP = 15;
+    public static final int GIVE_UP = 50;
     private final VibrationType vibrationType;
+    private final boolean repeat;
 
     /**
-     * Creats an instance
+     * Creates an instance
      * 
      * @param vibrationType
      *            the {@link com.microsoft.band.notifications.VibrationType} to send to the band
      */
-    public SendVibration(final VibrationType vibrationType) {
+    public SendVibration(final VibrationType vibrationType, final boolean repeat) {
         this.vibrationType = vibrationType;
+        this.repeat = repeat;
     }
 
     /**
@@ -34,13 +38,16 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionState> 
      *            the client to use to send the vibration
      * @return the {@link com.microsoft.band.ConnectionState}
      */
-    public static ConnectionState sendVibration(final BandClient bandClient, final VibrationType vibrationType) {
+    public static ConnectionState sendVibration(final BandClient bandClient, final VibrationType vibrationType, final boolean repeat) {
+        Log.i("sendVibration","Client: "+bandClient);
+        Log.i("sendVibration","vibrationType: "+vibrationType);
+        Log.i("sendVibration","repeat: "+repeat);
         if (bandClient != null && vibrationType != null) {
             int vibrationAttemptCount = 1;
             ConnectionState connectionState = sendVibrationOnce(bandClient, vibrationType);
             while (ConnectionState.BOUND != connectionState && vibrationAttemptCount < GIVE_UP) {
                 connectionState = sendVibrationOnce(bandClient, vibrationType);
-                if (ConnectionState.BOUND == connectionState) {
+                if (ConnectionState.BOUND == connectionState && !repeat) {
                     return ConnectionState.BOUND;
                 } else {
                     vibrationAttemptCount++;
@@ -49,6 +56,14 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionState> 
                     } catch (InterruptedException e) {
                         Log.i("ConnectToBand", "Problem while delaying: \n" + e.toString());
                     }
+                }
+            }
+            while (repeat) {
+                try {
+                    Thread.sleep(4000);
+                    sendVibrationOnce(bandClient, vibrationType);
+                } catch (InterruptedException e) {
+                    // Meh
                 }
             }
             return ConnectionState.UNBOUND;
@@ -66,12 +81,12 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionState> 
      * @return hopefully {@link com.microsoft.band.ConnectionState#BOUND}
      */
     private static ConnectionState sendVibrationOnce(final BandClient bandClient, final VibrationType vibrationType) {
+        Log.i("SendVibration", "Trying to send vibration once.");
         if (bandClient != null && vibrationType != null) {
             try {
                 if (!bandClient.isConnected()) {
                     BandHelper.connectToBand(bandClient);
                 }
-
                 bandClient.getNotificationManager().vibrate(vibrationType).await();
                 return ConnectionState.BOUND;
             } catch (Exception e) {
@@ -90,9 +105,34 @@ public class SendVibration extends AsyncTask<BandClient, Void, ConnectionState> 
      */
     @Override
     protected ConnectionState doInBackground(final BandClient... bandClients) {
+        Log.i("DoInBackground","Called...");
+        Log.i("bandClients","bandClients: "+ Arrays.toString(bandClients));
         if (bandClients != null && bandClients.length > 0) {
-            return sendVibration(bandClients[0], vibrationType);
+            return sendVibration(bandClients[0], vibrationType, repeat);
+        }else{
+            Log.i("DoInBackground","No connected bands?");
         }
         return ConnectionState.UNBOUND;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof SendVibration))
+            return false;
+
+        final SendVibration that = (SendVibration) o;
+
+        if (repeat != that.repeat)
+            return false;
+        return vibrationType == that.vibrationType;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = vibrationType != null ? vibrationType.hashCode() : 0;
+        result = 31 * result + (repeat ? 1 : 0);
+        return result;
     }
 }

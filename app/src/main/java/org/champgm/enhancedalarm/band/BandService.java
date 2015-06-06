@@ -10,6 +10,8 @@ import com.microsoft.band.BandClient;
 import com.microsoft.band.notifications.VibrationType;
 
 import org.champgm.enhancedalarm.SettingsActivity;
+import org.champgm.enhancedalarm.alarmui.AlarmAdapter;
+import org.champgm.enhancedalarm.alarmui.AlarmListItem;
 
 /**
  * A service class to maintain a connection to the Microsoft Band and send vibration alarms.
@@ -46,7 +48,19 @@ public class BandService extends Service {
         if (intent != null && bandClient != null) {
             // Get the vibration type from the input intent and send the vibration
             final String vibrationType = intent.getStringExtra(VibrationReceiver.VIBRATION_TYPE_KEY);
-            BandHelper.sendVibration(VibrationType.valueOf(vibrationType), bandClient);
+
+            final String uuid = intent.getStringExtra(VibrationReceiver.UUID_KEY);
+            Log.i("BandService", "Sending vibration to band helper with UUID: " + uuid);
+
+            final boolean isAlarm = intent.getBooleanExtra(AlarmListItem.PUT_EXTRA_IS_ALARM, false);
+            Log.i("BandService", "isAlarm: " + isAlarm);
+            final String stringExtra = intent.getStringExtra(AlarmListItem.PUT_EXTRA_IS_ALARM);
+            Log.i("BandService", "stringExtra: " + stringExtra);
+
+            BandHelper.sendVibration(uuid, VibrationType.valueOf(vibrationType), isAlarm, bandClient);
+            if (isAlarm) {
+                AlarmAdapter.instance.flash(uuid);
+            }
         }
 
         return START_STICKY;

@@ -1,5 +1,7 @@
 package org.champgm.enhancedalarm.alarmui;
 
+import android.animation.ArgbEvaluator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -26,12 +28,13 @@ public class AlarmAdapter extends BaseAdapter {
      * They key used to store a flag representing if a new item needs to be added
      */
     public static final String PUT_EXTRA_ADD_ITEM = "481001b8-4992-408e-acfd-637415627725";
-    private final ArrayList<AlarmListItem> contents;
+    private static final ArrayList<AlarmListItem> contents = new ArrayList<AlarmListItem>();
+    public static AlarmAdapter instance;
     private final LayoutInflater layoutInflater;
     private final Fragment alarmsFragment;
 
     public AlarmAdapter(final Fragment alarmsFragment) {
-        this(alarmsFragment, newList());
+        this(alarmsFragment, null);
     }
 
     public AlarmAdapter(final Fragment alarmsFragment, final Collection<AlarmListItem> contents) {
@@ -41,12 +44,35 @@ public class AlarmAdapter extends BaseAdapter {
         this.alarmsFragment = alarmsFragment;
         this.layoutInflater = (LayoutInflater) alarmsFragment.getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        if (contents == null || contents.isEmpty()) {
-            this.contents = newList();
-        } else {
-            this.contents = new ArrayList<AlarmListItem>(contents);
+        if (contents != null && !contents.isEmpty()) {
+            AlarmAdapter.contents.clear();
+            AlarmAdapter.contents.addAll(contents);
         }
         updateData();
+        instance = this;
+    }
+
+    /**
+     * Calls fromString() on each item and stores them in a set
+     *
+     * @return a set of {@link org.champgm.enhancedalarm.alarmui.AlarmListItem}s created from Strings
+     */
+    public static Set<AlarmListItem> contentsFromString(final Set<String> stringRepresentations) {
+        final HashSet<AlarmListItem> alarmListItems = new HashSet<AlarmListItem>(stringRepresentations.size());
+        for (final String stringRepresentation : stringRepresentations) {
+            alarmListItems.add(AlarmListItem.fromString(stringRepresentation));
+        }
+        return alarmListItems;
+    }
+
+    public void flash(final String uuid) {
+        final UUID targetUUID = UUID.fromString(uuid);
+        for (final AlarmListItem content : contents) {
+            if (content.uuid == targetUUID) {
+                content.firing = true;
+            }
+        }
+        notifyDataSetChanged();
     }
 
     @Override
@@ -78,13 +104,13 @@ public class AlarmAdapter extends BaseAdapter {
             final AlarmListItem alarmListItem = contents.get(position);
             // If this is the special add button, create that, set the button listener, and return it
             if (alarmListItem.uuid == AlarmListItem.ADD_ITEM_UUID) {
-                Log.i("ALARM_ADAPTER", "UUID is ADD_ITEM UUID.");
+//                Log.i("ALARM_ADAPTER", "UUID is ADD_ITEM UUID.");
                 final View addView = layoutInflater.inflate(R.layout.list_add_item, parent, false);
                 final Button addButton = (Button) addView.findViewById(R.id.add_button);
                 addButton.setOnClickListener(new AlarmListItemEditButtonOnClickListener(position, this, alarmsFragment, true));
                 return addView;
             } else {
-                Log.i("ALARM_ADAPTER", "UUID: " + alarmListItem.uuid);
+//                Log.i("ALARM_ADAPTER", "UUID: " + alarmListItem.uuid);
                 // Create a new view
                 final View alarmView = layoutInflater.inflate(R.layout.alarm_list_item, parent, false);
 
@@ -101,8 +127,8 @@ public class AlarmAdapter extends BaseAdapter {
 
                 if (alarmListItem.days.size() > 0) {
                     final StringBuilder days = new StringBuilder();
-                    for (Days day : Days.orderedDays) {
-                        if(alarmListItem.days.contains(day)){
+                    for (final Days day : Days.orderedDays) {
+                        if (alarmListItem.days.contains(day)) {
                             final String abbreviationString = alarmsFragment.getResources().getString(day.abbreviation);
                             days.append(abbreviationString).append(", ");
                         }
@@ -125,6 +151,19 @@ public class AlarmAdapter extends BaseAdapter {
                     alarmView.setBackgroundColor(alarmsFragment.getResources().getColor(R.color.invisible));
                 }
 
+                if (alarmListItem.firing) {
+                    final Integer colorFrom = alarmsFragment.getResources().getColor(R.color.activated_green);
+                    final Integer colorTo = alarmsFragment.getResources().getColor(R.color.firing_red);
+                    final ValueAnimator colorAnimation = ValueAnimator.ofObject(new ArgbEvaluator(), colorFrom, colorTo);
+                    colorAnimation.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(final ValueAnimator animator) {
+                            alarmView.setBackgroundColor((Integer) animator.getAnimatedValue());
+                        }
+                    });
+                    colorAnimation.start();
+                }
+
                 return alarmView;
             }
         } else {
@@ -145,8 +184,7 @@ public class AlarmAdapter extends BaseAdapter {
     /**
      * Manually sets the contents of this adapter
      *
-     * @param newContents
-     *            the new items which will replace all old items
+     * @param newContents the new items which will replace all old items
      */
     public void setContents(final Collection<AlarmListItem> newContents) {
         contents.clear();
@@ -168,10 +206,6 @@ public class AlarmAdapter extends BaseAdapter {
         return strings;
     }
 
-    private static ArrayList<AlarmListItem> newList() {
-        return new ArrayList<AlarmListItem>();
-    }
-
     /**
      * This method will ensure that the add-item menu thing is there and that the list contents are refreshed. Call it
      * any time a list operation is done.
@@ -189,25 +223,10 @@ public class AlarmAdapter extends BaseAdapter {
     }
 
     /**
-     * Calls fromString() on each item and stores them in a set
-     *
-     * @return a set of {@link org.champgm.enhancedalarm.alarmui.AlarmListItem}s created from Strings
-     */
-    public static Set<AlarmListItem> contentsFromString(final Set<String> stringRepresentations) {
-        final HashSet<AlarmListItem> alarmListItems = new HashSet<AlarmListItem>(stringRepresentations.size());
-        for (final String stringRepresentation : stringRepresentations) {
-            alarmListItems.add(AlarmListItem.fromString(stringRepresentation));
-        }
-        return alarmListItems;
-    }
-
-    /**
      * Replaces an item in the list with a new one. Called by the {@link EditAlarmActivity}
      *
-     * @param position
-     *            position of the item to be replaced
-     * @param newAlarmListItem
-     *            the new item
+     * @param position         position of the item to be replaced
+     * @param newAlarmListItem the new item
      */
     public void replaceItem(final int position, final AlarmListItem newAlarmListItem) {
         if (Checks.isNotNull(contents) && position <= contents.size() - 1 && position >= 0) {
@@ -223,8 +242,7 @@ public class AlarmAdapter extends BaseAdapter {
     /**
      * Remove an item from the alarm list
      *
-     * @param position
-     *            location of the item to remove
+     * @param position location of the item to remove
      */
     public void removeItem(final int position) {
         if (Checks.isNotNull(contents) && position <= contents.size() - 1 && position >= 0) {
@@ -237,8 +255,4 @@ public class AlarmAdapter extends BaseAdapter {
         updateData();
     }
 
-
-    public static void flash(String uuid){
-        final UUID uuid1 = UUID.fromString(uuid);
-    }
 }

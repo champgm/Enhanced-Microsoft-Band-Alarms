@@ -39,6 +39,10 @@ public class AlarmListItem implements Parcelable {
      */
     public static final String PUT_EXTRA_POSITION_KEY = "db13016e-3a13-4a95-97a0-c99b2dc16bbc";
     /**
+     * The intent extra storage key that notes if an alarm is present in the intent
+     */
+    public static final String PUT_EXTRA_IS_ALARM = "bf54c796-10d6-4c44-b8d1-782df891710a";
+    /**
      * The UUID for this thing
      */
     public final UUID uuid;
@@ -77,6 +81,7 @@ public class AlarmListItem implements Parcelable {
     private static final String timePrefix = ", time=";
     private static final String periodPrefix = ", period=";
     private static final String enabledPrefix = ", enabled=";
+    private static final String firingPrefix = ", firing=";
     private static final char closeBracket = '}';
     private static final String blankLabel = "X";
     private static final String blankAlarmTime = "00:01";
@@ -164,6 +169,7 @@ public class AlarmListItem implements Parcelable {
             time = parcel.readString();
             period = Period.fromId(parcel.readInt());
             enabled = parcel.readInt() == 1;
+            firing = parcel.readInt() == 1;
         } else {
             throw new RuntimeException("Unable to create AlarmListItem from empty parcel");
         }
@@ -186,6 +192,7 @@ public class AlarmListItem implements Parcelable {
         destination.writeString(time);
         destination.writeInt(period.buttonId);
         destination.writeInt(enabled ? 1 : 0);
+        destination.writeInt(firing ? 1 : 0);
     }
 
     private int[] daysToList() {
@@ -233,6 +240,7 @@ public class AlarmListItem implements Parcelable {
 
         return period == that.period &&
                 enabled == that.enabled &&
+                firing == that.firing &&
                 uuid.equals(that.uuid) &&
                 vibrationTypeName.equals(that.vibrationTypeName) &&
                 label.equals(that.label) &&
@@ -255,6 +263,7 @@ public class AlarmListItem implements Parcelable {
                 timePrefix + time +
                 periodPrefix + period.stringId +
                 enabledPrefix + enabled +
+                firingPrefix + firing +
                 closeBracket;
     }
 
@@ -265,15 +274,8 @@ public class AlarmListItem implements Parcelable {
         final Collection<Days> days = Days.fromString(stringRepresentation.substring(stringRepresentation.indexOf(daysPrefix) + daysPrefix.length(), stringRepresentation.indexOf(timePrefix)));
         final String time = stringRepresentation.substring(stringRepresentation.indexOf(timePrefix) + timePrefix.length(), stringRepresentation.indexOf(periodPrefix));
         final Period period = Period.fromId(Integer.valueOf(stringRepresentation.substring(stringRepresentation.indexOf(periodPrefix) + periodPrefix.length(), stringRepresentation.indexOf(enabledPrefix))));
-        final boolean enabled = Boolean.valueOf(stringRepresentation.substring(stringRepresentation.indexOf(enabledPrefix) + enabledPrefix.length(), stringRepresentation.indexOf(closeBracket)));
-        Log.i("ALARM_ADAPTER", "Creating alarm list item from string");
-        Log.i("ALARM_ADAPTER", "uuid: " + uuid);
-        Log.i("ALARM_ADAPTER", "vibrationTypeName: " + vibrationTypeName);
-        Log.i("ALARM_ADAPTER", "label: " + label);
-        Log.i("ALARM_ADAPTER", "days: " + days);
-        Log.i("ALARM_ADAPTER", "time: " + time);
-        Log.i("ALARM_ADAPTER", "period: " + period);
-        Log.i("ALARM_ADAPTER", "enabled: " + enabled);
+        final boolean enabled = Boolean.valueOf(stringRepresentation.substring(stringRepresentation.indexOf(enabledPrefix) + enabledPrefix.length(), stringRepresentation.indexOf(firingPrefix)));
+        final boolean firing = Boolean.valueOf(stringRepresentation.substring(stringRepresentation.indexOf(firingPrefix) + firingPrefix.length(), stringRepresentation.indexOf(closeBracket)));
 
         return new AlarmListItem(
                 uuid,
@@ -282,7 +284,8 @@ public class AlarmListItem implements Parcelable {
                 days,
                 time,
                 period,
-                enabled);
+                enabled,
+                firing);
     }
 
     @Override
@@ -294,6 +297,7 @@ public class AlarmListItem implements Parcelable {
         result = 31 * result + time.hashCode();
         result = 31 * result + period.hashCode();
         result = 31 * result + (enabled ? 1 : 0);
+        result = 31 * result + (firing ? 1 : 0);
         return result;
     }
 

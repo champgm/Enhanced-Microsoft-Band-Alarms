@@ -64,7 +64,11 @@ public class AlarmListItemOnClickListener implements AdapterView.OnItemClickList
 
                     final Intent intent = new Intent(view.getContext(), VibrationReceiver.class);
                     final String uuidString = alarmListItem.uuid.toString();
+                    Log.i("OnClickListener", "UUID in list item: " + uuidString);
                     intent.putExtra(VibrationReceiver.UUID_KEY, uuidString);
+
+
+                    intent.putExtra(AlarmListItem.PUT_EXTRA_IS_ALARM, true);
                     intent.putExtra(VibrationReceiver.VIBRATION_TYPE_KEY, alarmListItem.vibrationTypeName);
 
                     for (final Days day : alarmListItem.days) {
@@ -73,7 +77,12 @@ public class AlarmListItemOnClickListener implements AdapterView.OnItemClickList
 
                     final AlarmManager alarmManager = (AlarmManager)
                             view.getContext().getSystemService(Context.ALARM_SERVICE);
-                    if (alarmListItem.enabled) {
+                    if (alarmListItem.enabled && alarmListItem.firing) {
+                        alarmListItem.firing = false;
+                        view.clearAnimation();
+                        view.setBackgroundColor(view.getContext().getResources().getColor(R.color.activated_green));
+                        BandHelper.stopVibration(uuidString);
+                    } else if (alarmListItem.enabled) {
                         for (final PendingIntent pendingIntent : pendingIntents.values()) {
                             alarmManager.cancel(pendingIntent);
                             pendingIntent.cancel();
@@ -87,7 +96,6 @@ public class AlarmListItemOnClickListener implements AdapterView.OnItemClickList
                         // Toggle the alarm status
                         alarmListItem.enabled = false;
                     } else {
-
                         for (final Days day : alarmListItem.days) {
                             final Calendar calendar = Calendar.getInstance();
                             Log.i("No Modification-", calendar.toString());
@@ -110,6 +118,9 @@ public class AlarmListItemOnClickListener implements AdapterView.OnItemClickList
                             Log.i("Set the Hour   -", calendar.toString());
                             calendar.set(Calendar.MINUTE, parsedTime.minutesInt);
                             Log.i("Set the Minute -", calendar.toString());
+                            calendar.clear(Calendar.SECOND);
+                            Log.i("Clear the Secs -", calendar.toString());
+
                             final int today = calendar.get(Calendar.DAY_OF_WEEK);
 
                             if (today < day.calendarDay) {
@@ -119,6 +130,14 @@ public class AlarmListItemOnClickListener implements AdapterView.OnItemClickList
                             }
                             Log.i("Set the Day    -", calendar.toString());
                             Log.i("Final Calendar -", calendar.toString());
+
+                            final boolean isAlarm = intent.getBooleanExtra(AlarmListItem.PUT_EXTRA_IS_ALARM, false);
+                            Log.i("CLICK", "isAlarm: " + isAlarm);
+
+//                            final PendingIntent pendingIntent = pendingIntents.get(day);
+//                            pendingIntent.
+
+                            Log.i("CLICK","Starting intent: "+pendingIntents.get(day));
                             alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 604800000, pendingIntents.get(day));
                         }
 

@@ -13,4 +13,8 @@
     #FF00FF00
   </color>
 
+  <color name="firing_red">
+    #FFE2140D
+  </color>
+
 </resources>

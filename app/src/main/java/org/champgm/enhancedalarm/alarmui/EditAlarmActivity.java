@@ -1,15 +1,11 @@
 package org.champgm.enhancedalarm.alarmui;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import android.content.Intent;
 import android.graphics.LightingColorFilter;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +22,11 @@ import org.champgm.enhancedalarm.util.Days;
 import org.champgm.enhancedalarm.util.Period;
 import org.champgm.enhancedalarm.util.Toaster;
 
-import com.microsoft.band.notifications.VibrationType;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class EditAlarmActivity extends EditActivity {
     /**
@@ -79,7 +79,7 @@ public class EditAlarmActivity extends EditActivity {
         commonSetup();
 
         // Get original position and timer item from input
-        itemToEdit = new AlarmListItem(VibrationType.NOTIFICATION_ALARM.name(), "", new ArrayList<Days>(), "00:00", Period.TWENTY_FOUR_HOUR, false);
+        itemToEdit = new AlarmListItem(UUID.randomUUID().toString(), "", new ArrayList<Days>(), "00:00", Period.TWENTY_FOUR_HOUR, false, false);
         if (savedInstanceState != null) {
             // Grab saved timer item and original position
             itemToEdit = savedInstanceState.getParcelable(AlarmListItem.PUT_EXTRA_ITEM_KEY);
@@ -189,6 +189,7 @@ public class EditAlarmActivity extends EditActivity {
         if (resultAlarm != null) {
             if (AlarmTimeHelper.makesSense(resultAlarm.time, resultAlarm.period)) {
                 final Intent resultIntent = new Intent();
+                Log.i("EditAlarm","Result UUID: "+resultAlarm.uuid);
                 resultIntent.putExtra(AlarmListItem.PUT_EXTRA_ITEM_KEY, resultAlarm);
                 resultIntent.putExtra(AlarmListItem.PUT_EXTRA_POSITION_KEY, originalPosition);
                 setResult(EDIT_RESULT_SUCCESS, resultIntent);
@@ -222,6 +223,7 @@ public class EditAlarmActivity extends EditActivity {
                     getSelectedDays(),
                     String.valueOf(alarmText.getText()),
                     period,
+                    false,
                     false);
         }
         return null;

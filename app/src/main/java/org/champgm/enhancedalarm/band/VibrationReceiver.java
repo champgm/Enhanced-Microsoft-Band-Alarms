@@ -19,7 +19,7 @@ public class VibrationReceiver extends BroadcastReceiver {
      * The key that should be used to store the {@link com.microsoft.band.notifications.VibrationType}, that should be
      * sent to the band, in the intent that this receiver will receive
      */
-    public static final String VIBRATION_TYPE_KEY = "4fb3b86a-70af-4dba-812e-964f4478a50d";
+    public static final String VIBRATION_TYPE_KEY = "c9897c95-40e6-470d-9fb1-c9ea0b70a3ee";
 
     /**
      * Starts the {@link BandService} and sends a vibration intent to it

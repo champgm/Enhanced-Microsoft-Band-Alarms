@@ -3,6 +3,7 @@ package org.champgm.enhancedalarm.band;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 
 import com.microsoft.band.BandClient;
 import com.microsoft.band.BandClientManager;
@@ -17,6 +18,8 @@ import org.champgm.enhancedalarm.R;
 import org.champgm.enhancedalarm.util.Toaster;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
@@ -36,6 +39,8 @@ public class BandHelper {
      * future, it will need one)
      */
     public static final String TILE_NAME = "EnhancedTimer";
+
+    private static final Map<String, SendVibration> alarmVibrations = new HashMap<>();
 
     /**
      * Adds this app's tile to the band.
@@ -136,8 +141,25 @@ public class BandHelper {
      * @param bandClient
      *            the client to use to send the specified vibration
      */
-    public static void sendVibration(final VibrationType vibrationType, final BandClient bandClient) {
-        new SendVibration(vibrationType).execute(bandClient);
+    public static void sendVibration(final String uuid, final VibrationType vibrationType, final boolean repeat, final BandClient bandClient) {
+        Log.i("BandHelper","UUID: "+uuid);
+        Log.i("BandHelper","VibType: "+vibrationType);
+        Log.i("BandHelper","Repeat: "+repeat);
+        if (uuid != null && repeat) {
+            final SendVibration vibration = new SendVibration(vibrationType, true);
+            alarmVibrations.put(uuid, vibration);
+            vibration.execute(bandClient);
+        } else {
+            new SendVibration(vibrationType, false).execute(bandClient);
+        }
+    }
+
+    public static void stopVibration(final String uuid) {
+        if (alarmVibrations.containsKey(uuid)) {
+            alarmVibrations.get(uuid).cancel(true);
+        } else {
+            Log.e("BandHelper", "Attempted to stop unknown alarm: " + uuid);
+        }
     }
 
     /**
